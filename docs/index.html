@@ -181,7 +181,7 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
       <div class="tap-hint"><span>Tap to crumple</span><span class="pips" id="pips"><i></i><i></i><i></i></span></div>
     </div>
 
-    <div class="prompt" id="prompt" hidden>Swipe up to throw</div>
+    <div class="prompt" id="prompt" hidden>Drag up to aim</div>
     <div class="toast" id="toast"></div>
 
     <section class="screen" id="menu">
@@ -192,7 +192,7 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
       <ol class="how sticker">
         <li>Read the question. Or don't.</li>
         <li>Tap the paper 3 times to crumple it.</li>
-        <li>Swipe up to throw. Watch the fan and aim off for the wind.</li>
+        <li>Drag up from the ball to aim. A dotted line shows the throw. Let go to throw.</li>
       </ol>
       <div class="step" id="stepDeg">
         <h2 class="step-h">Pick your degree</h2>
@@ -202,9 +202,9 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
         <h2 class="step-h">Pick your wind</h2>
         <p class="picked" id="pickedDeg"></p>
         <div class="wind-list">
-          <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="m-n">Breeze</span><span class="m-d">Steady wind. Read the arrow and aim off a little.</span></button>
-          <button class="mode sticker" id="m-high" data-mode="high"><span class="m-n">High Wind</span><span class="m-d">Someone opened the window during a monsoon. Gusts included.</span></button>
-          <button class="mode sticker" id="m-weird" data-mode="weird"><span class="m-n">Weird Wind</span><span class="m-d">Swirls, updrafts, U-turns. Sometimes the wind lies to you.</span></button>
+          <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="m-n">Breeze</span><span class="m-d">Easy. The aim line includes the wind, so it shows exactly where the ball lands.</span></button>
+          <button class="mode sticker" id="m-high" data-mode="high"><span class="m-n">High Wind</span><span class="m-d">Monsoon gusts. The aim line ignores the wind, so aim off using the arrow.</span></button>
+          <button class="mode sticker" id="m-weird" data-mode="weird"><span class="m-n">Weird Wind</span><span class="m-d">Swirls, updrafts, U-turns. The aim line ignores it all, and sometimes the wind lies.</span></button>
         </div>
         <button class="btn alt" id="backDeg">Back</button>
       </div>
@@ -619,7 +619,7 @@ const BAD = ['The question survives.','On the floor. Like me at 3am.','Wind 1, y
 /* ---------- World ---------- */
 const W=240,H=400,CX=120,HY=112,F=260,CAMY=1.3,CAMZ=-1;
 const RW=3.0,RH=2.8,RD=6.3;
-const G=9.8,BR=0.07,BIN_R=0.36,BIN_H=0.6,PAPERS=12,FAN_Z=2.4;
+const G=9.8,BR=0.07,BIN_R=0.42,BIN_H=0.6,PAPERS=12,FAN_Z=2.4;
 const INK='#23303f';
 
 const $=s=>document.querySelector(s);
@@ -908,13 +908,22 @@ function crumpleTap(e){
 }
 function beginAim(){
   phase='aim';Object.assign(ball,{x:0,y:.5,z:0,state:'held',rot:Math.random()*6});
-  prompt.textContent='Swipe up to throw';prompt.hidden=false;
+  prompt.textContent='Drag up to aim';prompt.hidden=false;
   if(game.idx===6)toast(['The bin is moving now!'],'warn');
   else if(game.idx===10)toast(['The bin is speeding up!'],'warn');
 }
+// Paper-toss style: the drag's direction aims the throw at the bin's distance.
+// Drag length only nudges the range a little, so aim and wind decide the shot.
+function launch(dxN,upN){
+  const th=45*Math.PI/180,tn=Math.tan(th),y0=.5,bz=bin.z;
+  const q=clamp(upN/.3,.5,1.6),zT=bz*(1+(q-1)*.1);
+  const t=Math.sqrt(2*(y0-BIN_H+zT*tn)/G),vz=zT/t,vy=vz*tn;
+  const b0=proj(0,y0,0),bt=proj(0,BIN_H,bz);
+  const aimSx=b0[0]+(dxN/Math.max(.02,upN))*(b0[1]-bt[1]);
+  return {vx:((aimSx-CX)/bt[2])/t,vy,vz};
+}
 function throwBall(dxN,upN){
-  const p=clamp(upN/.55,0,1),s=4.4+4*p,th=55*Math.PI/180,vz=s*Math.cos(th),vy=s*Math.sin(th);
-  const vx=vz*(dxN/Math.max(.03,upN))*.8;
+  const {vx,vy,vz}=launch(dxN,upN);
   Object.assign(ball,{x:0,y:.5,z:0,vx,vy,vz,t:0,state:'fly',rim:0,wall:0,floorHits:0,rested:false,restT:0,done:false,vr:rand(-14,14)});
   phase='flight';prompt.hidden=true;Snd.whoosh();
   if(wind.mode==='weird'&&wind.event==='LIAR')toast(['The wind lied!'],'warn');
@@ -958,12 +967,12 @@ function endGame(){
 /* ---------- Input ---------- */
 paperLayer.addEventListener('pointerdown',crumpleTap);
 function toCanvas(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H,a:1};}
-cv.addEventListener('pointerdown',e=>{if(phase!=='aim')return;Snd.init();drag={x:e.clientX,y:e.clientY};trail=[toCanvas(e)];try{cv.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
-cv.addEventListener('pointermove',e=>{if(!drag)return;trail.push(toCanvas(e));if(trail.length>28)trail.shift();});
+cv.addEventListener('pointerdown',e=>{if(phase!=='aim')return;Snd.init();drag={x:e.clientX,y:e.clientY,cx:e.clientX,cy:e.clientY,h:frame.getBoundingClientRect().height};prompt.textContent='Release to throw';trail=[toCanvas(e)];try{cv.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+cv.addEventListener('pointermove',e=>{if(!drag)return;drag.cx=e.clientX;drag.cy=e.clientY;trail.push(toCanvas(e));if(trail.length>28)trail.shift();});
 cv.addEventListener('pointerup',e=>{
   if(!drag)return;const r=frame.getBoundingClientRect(),up=(drag.y-e.clientY)/r.height,dx=(e.clientX-drag.x)/r.height;drag=null;
   if(phase!=='aim')return;
-  if(up<.04){prompt.textContent='Swipe up, not down!';return;}
+  if(up<.04){prompt.textContent='Drag upward, toward the bin';return;}
   throwBall(dx,up);
 });
 cv.addEventListener('pointercancel',()=>{drag=null;});
@@ -1041,6 +1050,21 @@ function drawAimHint(){
   c.beginPath();c.moveTo(CX,y-9);c.lineTo(CX+7,y);c.lineTo(CX+3,y);c.lineTo(CX+3,y+8);c.lineTo(CX-3,y+8);c.lineTo(CX-3,y);c.lineTo(CX-7,y);c.closePath();
   paint(c,'#ffd23f',1.2);
 }
+function drawPreview(){
+  if(!drag||phase!=='aim')return;
+  const up=(drag.y-drag.cy)/drag.h,dx=(drag.cx-drag.x)/drag.h;if(up<.04)return;
+  const v=launch(dx,up),useWind=wind.mode==='breeze',c=ctx,dt=1/60;
+  const p0=proj(0,.5,0);let x=0,y=.5,z=0,vx=v.vx,vy=v.vy,vz=v.vz,t=0,end=null,last=p0,acc=0;const dots=[];
+  for(let i=1;i<600;i++){
+    const w=useWind?windAt(t):[0,0,0];vx+=w[0]*dt;vy+=(w[1]-G)*dt;vz+=w[2]*dt;x+=vx*dt;y+=vy*dt;z+=vz*dt;t+=dt;
+    if(vy<0&&y<=BIN_H){end=[x,BIN_H,z];break;}
+    const p=proj(x,y,z);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
+    const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}
+  }
+  if(end){const p=proj(...end),f=proj(end[0],end[1],end[2]-BIN_R*.6)[1],k=proj(end[0],end[1],end[2]+BIN_R*.6)[1];
+    c.beginPath();ell(c,p[0],(f+k)/2,BIN_R*.6*p[2],Math.max(1.2,(f-k)/2));paint(c,'rgba(255,210,63,.7)',1.1,INK);}
+  for(const [px,py,r] of dots){c.beginPath();c.arc(px,py,r,0,Math.PI*2);paint(c,'#ffffff',Math.max(.6,r*.5));}
+}
 function drawTrail(){
   if(trail.length<2)return;const c=ctx;c.lineCap='round';c.lineJoin='round';
   for(let i=1;i<trail.length;i++){const a=trail[i-1],b=trail[i];c.globalAlpha=clamp(b.a,0,1)*(i/trail.length);c.lineWidth=3;c.strokeStyle='#ffffff';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
@@ -1057,7 +1081,7 @@ function render(){
   if(flying){const above=b.z>bz&&b.y>=BIN_H+.15;items.push({z:above?bz-.01:b.z,draw:()=>drawBallWorld(b)});drawShadow(b);}
   else if(held)items.push({z:0,draw:()=>{const p=proj(0,.5+Math.sin(T*3)*.015,0);drawBall(p[0],p[1],BR*p[2],b.rot);}});
   items.sort((a,c)=>c.z-a.z).forEach(it=>it.draw());
-  drawParticles();drawTrail();
+  drawParticles();drawPreview();
   if(phase==='aim'&&!drag)drawAimHint();
 }
 
@@ -1071,6 +1095,7 @@ function fit(){
   cv.width=bg.width=Math.round(fw*dpr);cv.height=bg.height=Math.round(fh*dpr);K=cv.width/W;
   renderRoom();
 }
+window.__ptr={game,bin,wind,ball,binX,proj,get phase(){return phase;}};
 window.addEventListener('resize',fit);fit();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(renderRoom);
 buildDegGrid();
