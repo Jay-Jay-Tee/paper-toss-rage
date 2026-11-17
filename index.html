@@ -167,7 +167,7 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
           <div class="p-marks" id="p-marks">[10 marks]</div>
           <p class="p-q" id="p-q"></p>
           <div class="p-lines"></div>
-          <div class="p-foot">Answer all questions. Show your working. Do not cry on the script.</div>
+          <div class="p-foot">Answer ALL questions. Write in blue or black pen. Do not turn over until told to.</div>
         </div>
       </div>
       <div class="tap-hint"><span>Tap to crumple</span><span class="pips" id="pips"><i></i><i></i><i></i></span></div>
@@ -179,24 +179,24 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
     <section class="screen" id="menu">
       <header class="title-block">
         <h1 class="title"><span>Paper</span><span>Toss</span><span class="rage">Rage!</span></h1>
-        <p class="lede">Exam season edition. Crumple the question, bin it, feel slightly better.</p>
+        <p class="lede">For when you've been doing past year papers for 6 hours straight and need to throw something.</p>
       </header>
       <ol class="how sticker">
-        <li>Read the question. Or don't.</li>
-        <li>Tap the paper 3 times to crumple it.</li>
-        <li>Drag up from the ball to aim. A dotted line shows the throw. Let go to throw.</li>
+        <li>A question from your degree shows up on a sheet of paper</li>
+        <li>Tap it 3 times to crumple it</li>
+        <li>Drag up from the ball to aim. Drag further to throw further, then let go</li>
       </ol>
       <div class="step" id="stepDeg">
         <h2 class="step-h">Pick your degree</h2>
         <div id="degGrid"></div>
       </div>
       <div class="step" id="stepWind" hidden>
-        <h2 class="step-h">Pick your wind</h2>
+        <h2 class="step-h">How windy?</h2>
         <p class="picked" id="pickedDeg"></p>
         <div class="wind-list">
-          <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="m-n">Breeze</span><span class="m-d">Easy. The full aim line shows exactly where the ball lands, wind included.</span></button>
-          <button class="mode sticker" id="m-high" data-mode="high"><span class="m-n">High Wind</span><span class="m-d">Monsoon gusts. The aim line only shows the first part of the throw.</span></button>
-          <button class="mode sticker" id="m-weird" data-mode="weird"><span class="m-n">Weird Wind</span><span class="m-d">Swirls, updrafts, U-turns. The aim line is short, and sometimes the wind lies.</span></button>
+          <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="m-n">Breeze</span><span class="m-d">Light wind. You get the full aim line, so you can see exactly where it'll land.</span></button>
+          <button class="mode sticker" id="m-high" data-mode="high"><span class="m-n">High Wind</span><span class="m-d">Strong gusts. The aim line cuts off halfway and the white ring shows where you'd land with no wind.</span></button>
+          <button class="mode sticker" id="m-weird" data-mode="weird"><span class="m-n">Weird Wind</span><span class="m-d">The wind does random stuff, like swirling or switching direction mid-throw. Very short aim line.</span></button>
         </div>
         <button class="btn alt" id="backDeg">Back</button>
       </div>
@@ -219,7 +219,7 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
         <button class="btn" id="again">Retake</button>
         <button class="btn alt" id="newDeg">New degree</button>
       </div>
-      <p class="o-foot">Now drink some water and get back to it. You've got this.</p>
+      <p class="o-foot">Okay, back to studying. Drink some water first.</p>
     </section>
 
     <div class="bottom">
@@ -605,8 +605,8 @@ const NUS_ORDER = ['cs','eng','med','law','biz','fin','econ','psych','math','phy
 const NITC_ORDER = ['ncse','nece','neee','nmech','nciv','nchem','nprod','nbio','nphy','narch'];
 const ORDER = NUS_ORDER.concat(NITC_ORDER);
 const MARKS = [5,6,8,10,12,15,20,25];
-const GOOD = ['Binned.','Not examinable.','Return to sender.','Deleted from memory.','Marks: 0. Vibes: 100.','That one had it coming.','Straight to recycling.'];
-const BAD = ['The question survives.','On the floor. Like me at 3am.','Wind 1, you 0.','See you at the retake.','The bin dodged.','That was a warm-up.'];
+const GOOD = ['One less topic to revise','S/U that question','Bell curve who?','Not in the syllabus anymore','Into the bin it goes','Should\'ve done this in week 1','Your tutor felt that'];
+const BAD = ['Now it\'s definitely coming out in the exam','Grace marks won\'t save that one','Supply exam energy','The wind is on the prof\'s side','It\'s fine, nobody saw','Same as my midterms'];
 
 /* ---------- World ---------- */
 const W=240,H=400,CX=120,HY=112,F=260,CAMY=1.3,CAMZ=-1;
@@ -850,10 +850,10 @@ function updateHUD(){
 function buildDegGrid(){
   const root=$('#degGrid');root.innerHTML='';
   const mk=(parent,id,label,cls)=>{const b=document.createElement('button');b.className='deg sticker'+(cls?' '+cls:'');b.id='deg-'+id;const bs=bestFor(id);
-    b.innerHTML=`<span>${esc(label)}</span><small class="${bs?'has':''}">${bs?'Best '+bs:id==='all'?'NUS + NITC, all '+ORDER.length+' degrees':'12 questions'}</small>`;
+    b.innerHTML=`<span>${esc(label)}</span><small class="${bs?'has':''}">${bs?'Best '+bs:id==='all'?'NUS and NITC mixed':'12 questions'}</small>`;
     b.addEventListener('click',()=>{Snd.init();Snd.blip();pickDegree(id);});parent.appendChild(b);};
   const top=document.createElement('div');top.className='deg-grid';root.appendChild(top);
-  mk(top,'all','Chaos Mode: every degree at once','all');
+  mk(top,'all','Chaos mode: random questions from every degree','all');
   [['NUS','National University of Singapore',NUS_ORDER],['NITC','NIT Calicut',NITC_ORDER]].forEach(([tag,full,ids])=>{
     const h=document.createElement('h3');h.className='deg-sec';h.innerHTML=`<span>${tag}</span>${esc(full)}`;root.appendChild(h);
     const g=document.createElement('div');g.className='deg-grid';root.appendChild(g);ids.forEach(id=>mk(g,id,BANK[id].name));});
@@ -901,30 +901,33 @@ function crumpleTap(e){
 function beginAim(){
   phase='aim';Object.assign(ball,{x:0,y:.5,z:0,state:'held',rot:Math.random()*6});
   prompt.textContent='Drag up to aim';prompt.hidden=false;
-  if(game.idx===6)toast(['The bin is moving now!'],'warn');
-  else if(game.idx===10)toast(['The bin is speeding up!'],'warn');
+  if(game.idx===6)toast(['Bin\'s moving now'],'warn');
+  else if(game.idx===10)toast(['Bin\'s getting faster'],'warn');
 }
-// Paper-toss style: the drag's direction aims the throw at the bin's distance.
-// Drag length only nudges the range a little, so aim and wind decide the shot.
+// Where the drag ends is where you're aiming: the drag vector (scaled by REACH) is added to
+// the ball's screen position and projected onto the rim-height plane. Longer drag = deeper throw.
+const REACH=1.5;
+function aimPoint(dxN,upN){
+  const b0=proj(0,.5,0),sx=b0[0]+dxN*H*REACH,sy=Math.max(b0[1]-upN*H*REACH,HY+6);
+  const z=clamp(F*(CAMY-BIN_H)/(sy-HY)+CAMZ,.8,RD-.6),x=clamp((sx-CX)*(z-CAMZ)/F,-RW+.3,RW-.3);
+  return [x,z];
+}
 function launch(dxN,upN){
-  const th=45*Math.PI/180,tn=Math.tan(th),y0=.5,bz=bin.z;
-  const q=clamp(upN/.3,.5,1.6),zT=bz*(1+(q-1)*.1);
-  const t=Math.sqrt(2*(y0-BIN_H+zT*tn)/G),vz=zT/t,vy=vz*tn;
-  const b0=proj(0,y0,0),bt=proj(0,BIN_H,bz);
-  const aimSx=b0[0]+(dxN/Math.max(.02,upN))*(b0[1]-bt[1]);
-  return {vx:((aimSx-CX)/bt[2])/t,vy,vz};
+  const [xT,zT]=aimPoint(dxN,upN),tn=Math.tan(38*Math.PI/180),y0=.5;
+  const t=Math.sqrt(2*(y0-BIN_H+zT*tn)/G),vz=zT/t;
+  return {vx:xT/t,vy:vz*tn,vz};
 }
 function throwBall(dxN,upN){
   const {vx,vy,vz}=launch(dxN,upN);
   Object.assign(ball,{x:0,y:.5,z:0,vx,vy,vz,t:0,cross:null,floor1:null,state:'fly',rim:0,wall:0,floorHits:0,rested:false,restT:0,done:false,vr:rand(-14,14)});
   phase='flight';prompt.hidden=true;Snd.whoosh();
-  if(wind.mode==='weird'&&wind.event==='LIAR')toast(['The wind lied!'],'warn');
+  if(wind.mode==='weird'&&wind.event==='LIAR')toast(['Wind switched!'],'warn');
 }
 function onScore(){
   game.streak++;game.made++;game.bestStreak=Math.max(game.bestStreak,game.streak);game.binCount++;
   const mult=Math.min(game.streak,5),pts=(10+(ball.rim===0?5:0)+Math.round((bin.z-3)*6)+(bin.amp>0?5:0))*mult;
   game.score+=pts;ball.state='gone';
-  const t1=ball.rim===0?'Swish!':ball.rim>1?'Rattled in!':'Off the rim... in!';
+  const t1=ball.rim===0?'Swish!':ball.rim>1?'Rattled in!':'In off the rim!';
   toast([t1,'+'+pts,mult>1?`x${mult} combo`:'',pick(GOOD)],'good');Snd.score(mult);
   finishThrow();
 }
@@ -937,13 +940,13 @@ function onMiss(){
 }
 function finishThrow(){phase='result';updateHUD();const gen=game.gen;setTimeout(()=>{if(gen===game.gen)newPaper();},1500);}
 function gradeFor(m){
-  if(m>=12)return ['S','Flawless. Every question destroyed. The examiners are scared of you.'];
-  if(m>=10)return ['A+','First Class Honours in Waste Management.'];
-  if(m>=8)return ['A',"Dean's List. Of bins."];
-  if(m>=6)return ['B','Solid. The bell curve smiles upon you.'];
-  if(m>=4)return ['C','You passed. Technically. Like the rest of us.'];
-  if(m>=2)return ['D','The questions fought back. Rest, then retake.'];
-  return ['F','The wind marked your script. It was harsh.'];
+  if(m>=12)return ['S','12 out of 12. Screenshot this and send it to your prof.'];
+  if(m>=10)return ['A+','Almost perfect. Are you sure you\'ve been studying?'];
+  if(m>=8)return ['A','Solid. Now do this well in the actual exam.'];
+  if(m>=6)return ['B','Not bad. The bell curve should be kind.'];
+  if(m>=4)return ['C','Passed. 40% is a pass, remember.'];
+  if(m>=2)return ['D','Rough one. Take a break and try again.'];
+  return ['F','The bin won this time. Go get some sleep.'];
 }
 function endGame(){
   phase='over';hud.hidden=true;prompt.hidden=true;paperLayer.hidden=true;quitBtn.hidden=true;
@@ -964,7 +967,7 @@ cv.addEventListener('pointermove',e=>{if(!drag)return;drag.cx=e.clientX;drag.cy=
 cv.addEventListener('pointerup',e=>{
   if(!drag)return;const r=frame.getBoundingClientRect(),up=(drag.y-e.clientY)/r.height,dx=(e.clientX-drag.x)/r.height;drag=null;
   if(phase!=='aim')return;
-  if(up<.04){prompt.textContent='Drag upward, toward the bin';return;}
+  if(up<.04){prompt.textContent='Drag up, towards the bin';return;}
   throwBall(dx,up);
 });
 cv.addEventListener('pointercancel',()=>{drag=null;});
@@ -1070,6 +1073,8 @@ function drawPreview(){
   const p0=proj(0,.5,0);let last=p0,acc=0;const dots=[];
   for(let i=0;i<n;i++){const p=proj(...pts[i]);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
+  if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
+    c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
   if(frac>=1){
     const [ax,ay,az]=pr.at;
     if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.55)',Math.max(1.2,g.s*.03),'#2e9e48');}
