@@ -3,6 +3,8 @@ from pathlib import Path
 
 root = Path(__file__).parent
 body = (root / "index.html").read_text()
+if body.startswith('<meta charset="utf-8">'):
+    body = body.split("\n", 1)[1]
 page = (
     "<!doctype html>\n<html lang=\"en\">\n<head>\n"
     "<meta charset=\"utf-8\">\n"
