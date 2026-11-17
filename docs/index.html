@@ -284,7 +284,7 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
         <p class="picked" id="pickedDeg"></p>
         <div class="wind-list">
           <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="mode-top"><span class="m-n">Breeze</span><span class="m-tag easy">Easiest</span></span><span class="m-d">Light wind, and you get the full aim line. You can see exactly where it will land.</span></button>
-          <button class="mode sticker" id="m-high" data-mode="high"><span class="mode-top"><span class="m-n">High Wind</span><span class="m-tag hard">Hard</span></span><span class="m-d">Strong gusts. The aim line cuts off halfway, and the white ring shows where you would land with no wind.</span></button>
+          <button class="mode sticker" id="m-high" data-mode="high"><span class="mode-top"><span class="m-n">High Wind</span><span class="m-tag hard">Hard</span></span><span class="m-d">Strong gusts. The aim line cuts off halfway, so you have to judge the wind yourself.</span></button>
           <button class="mode sticker" id="m-weird" data-mode="weird"><span class="mode-top"><span class="m-n">Weird Wind</span><span class="m-tag chaos">Chaos</span></span><span class="m-d">The wind switches direction mid-throw, swirls, or drops. Barely any aim line.</span></button>
         </div>
         <p class="m-pick">Pick one to start. You get 12 questions.</p>
@@ -1483,6 +1483,7 @@ function predict(dxN,upN){
 }
 const SHOW={breeze:1,high:.6,weird:.35};
 function drawAimTarget(making){
+  if(wind.mode!=='breeze')return;
   const c=ctx,g=binGeo(binX(),bin.z);
   c.beginPath();ell(c,g.cx,g.cyT,g.rxT*.97,g.ryT*.97);
   if(making){
@@ -1501,8 +1502,6 @@ function drawPreview(){
   const p0=proj(0,.5,0);let last=p0,acc=0;const dots=[];
   for(let i=0;i<n;i++){const p=proj(...pts[i]);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
-  if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
-    c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
   if(frac>=1&&pr.result!=='in'){
     const [ax,ay,az]=pr.at;
     const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
