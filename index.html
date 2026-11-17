@@ -1445,6 +1445,18 @@ function predict(dxN,upN){
   return {pts,result:'floor',at:[x,0,z]};
 }
 const SHOW={breeze:1,high:.6,weird:.35};
+function drawAimTarget(making){
+  const c=ctx,g=binGeo(binX(),bin.z);
+  c.beginPath();ell(c,g.cx,g.cyT,g.rxT*.97,g.ryT*.97);
+  if(making){
+    const a=.18+.1*(.5+.5*Math.sin(T*6.5));
+    paint(c,`rgba(90,209,107,${a.toFixed(3)})`,Math.max(2,g.s*.052),'#2fa94f');
+    c.beginPath();ell(c,g.cx,g.cyT,g.rxT*.85,g.ryT*.85);
+    paint(c,null,Math.max(.9,g.s*.02),'rgba(255,255,255,.9)');
+  }else{
+    paint(c,'rgba(90,209,107,.06)',Math.max(1.1,g.s*.026),'rgba(47,169,79,.55)');
+  }
+}
 function drawPreview(){
   if(!drag||phase!=='aim')return;
   const up=(drag.y-drag.cy)/drag.h,dx=(drag.cx-drag.x)/drag.h;if(up<.04)return;
@@ -1454,15 +1466,15 @@ function drawPreview(){
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
   if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
     c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
-  if(frac>=1){
+  if(frac>=1&&pr.result!=='in'){
     const [ax,ay,az]=pr.at;
-    if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.22)',Math.max(1.7,g.s*.042),'#2fa94f');}
-    else{const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
-      c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
-      paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);}
+    const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
+    c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
+    paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);
   }
   dots.forEach(([px,py,r],i)=>{c.globalAlpha=frac<1?clamp(1.15-i/dots.length,.25,1):1;c.beginPath();c.arc(px,py,r,0,Math.PI*2);paint(c,'#ffffff',Math.max(.6,r*.5));});
   c.globalAlpha=1;
+  drawAimTarget(pr.result==='in');
 }
 function drawTrail(){
   if(trail.length<2)return;const c=ctx;c.lineCap='round';c.lineJoin='round';
@@ -1484,7 +1496,7 @@ function render(){
   vg.addColorStop(0,'rgba(35,48,63,0)');vg.addColorStop(1,'rgba(35,48,63,.22)');
   ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   drawParticles();drawPreview();drawBits();
-  if(phase==='aim'&&!drag)drawAimHint();
+  if(phase==='aim'&&!drag){drawAimHint();drawAimTarget(false);}
 }
 
 /* ---------- Layout + loop ---------- */
