@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Paper Toss Rage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&family=Permanent+Marker&display=swap">
+<style>
+/* Layout: one 3:5 game screen centred in the window. A cartoon vector room on canvas sits under DOM layers for the HUD, exam paper, toasts and menus. */
+:root{
+  --ink:#23303f;
+  --paper:#fffdf6;
+  --sun:#ffd23f;
+  --tomato:#ef5b4c;
+  --teal:#3fb8a9;
+  --deep:#1f4b52;
+  --sky:#5bc0eb;
+  --mute:#5d6b7a;
+  --f-display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+  --f-body:"Nunito","Trebuchet MS",system-ui,sans-serif;
+  --f-hand:"Permanent Marker","Comic Sans MS",cursive;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{margin:0;background:var(--deep);color:var(--ink);font-family:var(--f-body);overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#app{box-sizing:border-box;height:100%;display:flex;align-items:center;justify-content:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px}
+#frame{--u:3.6px;--ol:calc(var(--u)*.45) 0 0 var(--ink),calc(var(--u)*-.45) 0 0 var(--ink),0 calc(var(--u)*.45) 0 var(--ink),0 calc(var(--u)*-.45) 0 var(--ink),calc(var(--u)*.32) calc(var(--u)*.32) 0 var(--ink),calc(var(--u)*-.32) calc(var(--u)*.32) 0 var(--ink),calc(var(--u)*.32) calc(var(--u)*-.32) 0 var(--ink),calc(var(--u)*-.32) calc(var(--u)*-.32) 0 var(--ink),0 calc(var(--u)*1.1) 0 var(--ink);
+  position:relative;width:360px;height:600px;max-width:100%;background:#c3e6df;overflow:hidden;border-radius:calc(var(--u)*3.4);box-shadow:0 0 0 calc(var(--u)*.8) var(--ink),0 calc(var(--u)*1.8) 0 calc(var(--u)*.8) rgba(0,0,0,.35)}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:calc(var(--u)*.6)}
+.sticker{background:var(--paper);border:calc(var(--u)*.6) solid var(--ink);border-radius:calc(var(--u)*2.4);box-shadow:0 calc(var(--u)*.8) 0 var(--ink)}
+
+/* HUD */
+.hud{position:absolute;left:0;right:0;top:0;z-index:4;display:grid;gap:calc(var(--u)*2);padding:calc(var(--u)*3) calc(var(--u)*3);pointer-events:none}
+.row1{display:flex;justify-content:space-between;align-items:flex-start;gap:calc(var(--u)*2)}
+.tag{display:grid;padding:calc(var(--u)*.9) calc(var(--u)*2.2) calc(var(--u)*1.1);min-width:calc(var(--u)*14)}
+.tag .k{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.tag .v{font-family:var(--f-display);font-size:calc(var(--u)*4.8);line-height:1;font-variant-numeric:tabular-nums}
+.tag.mid{text-align:center}
+.tag.right{text-align:right}
+#h-combo.hot{color:var(--tomato)}
+.windbox{justify-self:center;display:flex;align-items:center;gap:calc(var(--u)*1.8);padding:calc(var(--u)*1) calc(var(--u)*2.8);border-radius:999px}
+.windbox .wk{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.warrow{width:calc(var(--u)*13);height:calc(var(--u)*5.4);overflow:visible;transition:transform .35s cubic-bezier(.3,1.6,.5,1),fill .3s}
+.warrow path{stroke:var(--ink);stroke-width:3;stroke-linejoin:round;paint-order:stroke}
+.windbox.weird .warrow{animation:wig .32s ease-in-out infinite alternate}
+#wnum{font-family:var(--f-display);font-size:calc(var(--u)*4.6);line-height:1;font-variant-numeric:tabular-nums;min-width:2.2ch}
+.chip{font-weight:900;font-size:calc(var(--u)*1.9);text-transform:uppercase;letter-spacing:.04em;background:var(--tomato);color:#fff;border-radius:999px;padding:calc(var(--u)*.5) calc(var(--u)*1.6)}
+.chip.gust{background:var(--sky);color:var(--ink)}
+
+/* Exam paper */
+.paper-layer{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*4);padding:calc(var(--u)*24) 0 calc(var(--u)*10);box-sizing:border-box;cursor:pointer;touch-action:manipulation;background:rgba(35,48,63,.18)}
+.paper-wrap{width:86%;filter:drop-shadow(0 calc(var(--u)*1.4) 0 rgba(35,48,63,.55))}
+.paper{position:relative;box-sizing:border-box;background-color:var(--paper);background-image:linear-gradient(90deg,transparent calc(var(--u)*6.4),rgba(239,91,76,.55) calc(var(--u)*6.4),rgba(239,91,76,.55) calc(var(--u)*6.8),transparent calc(var(--u)*6.8)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--u)*5.6),rgba(70,130,220,.22) calc(var(--u)*5.6),rgba(70,130,220,.22) calc(var(--u)*5.9));padding:calc(var(--u)*3.6) calc(var(--u)*4) calc(var(--u)*3.2) calc(var(--u)*9);display:grid;gap:calc(var(--u)*2);clip-path:polygon(0 0,33% 0,66% 0,100% 0,100% 33%,100% 66%,100% 100%,66% 100%,33% 100%,0 100%,0 66%,0 33%);transition:transform .2s cubic-bezier(.3,1.5,.5,1),clip-path .2s ease-out,opacity .25s,filter .2s}
+.paper::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;background:linear-gradient(118deg,transparent 47%,rgba(35,48,63,.22) 49%,rgba(255,255,255,.5) 50.5%,transparent 52%),linear-gradient(38deg,transparent 28%,rgba(35,48,63,.2) 30%,rgba(255,255,255,.45) 31%,transparent 33%),linear-gradient(165deg,transparent 64%,rgba(35,48,63,.2) 66%,transparent 68%),linear-gradient(80deg,transparent 15%,rgba(35,48,63,.16) 17%,transparent 19%),linear-gradient(-30deg,transparent 72%,rgba(35,48,63,.22) 74%,rgba(255,255,255,.45) 75%,transparent 77%)}
+.paper.c1{transform:rotate(-3deg) scale(.95);clip-path:polygon(3% 4%,30% 0,70% 5%,97% 1%,100% 35%,95% 68%,99% 97%,64% 93%,35% 100%,2% 95%,5% 62%,0 30%);filter:brightness(.97)}
+.paper.c1::after{opacity:.5}
+.paper.c2{transform:rotate(6deg) scale(.86);clip-path:polygon(12% 14%,35% 5%,62% 15%,88% 7%,93% 38%,84% 62%,91% 89%,60% 80%,38% 93%,9% 86%,18% 60%,5% 36%);filter:brightness(.93)}
+.paper.c2::after{opacity:.85}
+.paper.c3{transform:rotate(-14deg) scale(.78);clip-path:polygon(30% 27%,42% 17%,58% 25%,72% 19%,79% 40%,73% 56%,77% 75%,58% 70%,46% 81%,26% 73%,31% 56%,21% 40%);filter:brightness(.88)}
+.paper.c3::after{opacity:1}
+.paper.gone{transform:translateY(60%) rotate(-50deg) scale(.12);opacity:0}
+.p-head{display:flex;justify-content:space-between;gap:calc(var(--u)*2);font-weight:900;font-size:calc(var(--u)*1.9);letter-spacing:.04em;text-transform:uppercase;border-bottom:calc(var(--u)*.4) solid var(--ink);padding-bottom:calc(var(--u)*1.2)}
+.p-head span:last-child{white-space:nowrap}
+.p-marks{font-weight:900;font-size:calc(var(--u)*2);color:var(--tomato);text-transform:uppercase}
+.p-q{margin:0;font-weight:800;font-size:calc(var(--u)*4.9);line-height:1.2;text-wrap:pretty}
+.p-lines{height:calc(var(--u)*8)}
+.p-foot{font-weight:700;font-size:calc(var(--u)*1.9);line-height:1.35;color:var(--mute)}
+.tap-hint{display:flex;align-items:center;gap:calc(var(--u)*2.2);font-family:var(--f-display);font-size:calc(var(--u)*5);color:#fff;text-shadow:var(--ol)}
+.pips{display:flex;gap:calc(var(--u)*1.2)}
+.pips i{width:calc(var(--u)*3);height:calc(var(--u)*3);border-radius:50%;border:calc(var(--u)*.6) solid var(--ink);background:var(--paper);box-sizing:border-box}
+.pips i.on{background:var(--sun)}
+
+/* Prompt + toast */
+.prompt{position:absolute;left:0;right:0;bottom:calc(var(--u)*13);z-index:4;text-align:center;font-family:var(--f-display);font-size:calc(var(--u)*5);color:#fff;text-shadow:var(--ol);pointer-events:none;animation:bob 1s ease-in-out infinite}
+.toast{position:absolute;left:0;right:0;top:25%;z-index:6;display:grid;justify-items:center;gap:calc(var(--u)*1.6);text-align:center;pointer-events:none;opacity:0;padding-inline:calc(var(--u)*4)}
+.toast.show{animation:pop 1.5s cubic-bezier(.3,1.4,.5,1) forwards}
+.toast .t1{font-family:var(--f-display);font-size:calc(var(--u)*9);line-height:1.05;color:var(--sun);text-shadow:var(--ol)}
+.toast.bad .t1{color:#fff}
+.toast.warn .t1{font-size:calc(var(--u)*6.4);color:#fff}
+.toast .t2{font-family:var(--f-display);font-size:calc(var(--u)*6.4);color:#fff;text-shadow:var(--ol)}
+.toast .t3{font-weight:900;font-size:calc(var(--u)*2.6);text-transform:uppercase;background:var(--tomato);color:#fff;border:calc(var(--u)*.5) solid var(--ink);border-radius:999px;padding:calc(var(--u)*.6) calc(var(--u)*2.2)}
+.toast .t4{font-weight:900;font-size:calc(var(--u)*3.4);color:#fff;text-shadow:var(--ol);max-width:24ch}
+
+/* Screens */
+.screen{position:absolute;inset:0;z-index:5;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;background-color:var(--teal);background-image:radial-gradient(rgba(255,255,255,.16) calc(var(--u)*.5),transparent calc(var(--u)*.6));background-size:calc(var(--u)*5) calc(var(--u)*5);padding:calc(var(--u)*7) calc(var(--u)*5) calc(var(--u)*16);display:flex;flex-direction:column;gap:calc(var(--u)*5)}
+.title-block{display:grid;gap:calc(var(--u)*3);justify-items:start}
+.title{margin:0;display:grid;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*15);line-height:.86;color:var(--sun);text-shadow:var(--ol),0 calc(var(--u)*2) 0 var(--ink);transform:rotate(-4deg);transform-origin:left center}
+.title span:nth-child(2){padding-left:calc(var(--u)*6);color:#fff}
+.title .rage{color:var(--tomato);padding-left:calc(var(--u)*2)}
+.lede{margin:0;font-weight:800;font-size:calc(var(--u)*3.8);line-height:1.25;max-width:30ch}
+.how{margin:0;padding:calc(var(--u)*3) calc(var(--u)*3.4);list-style:none;counter-reset:how;display:grid;gap:calc(var(--u)*2)}
+.how li{counter-increment:how;display:flex;gap:calc(var(--u)*2.2);align-items:center;font-weight:800;font-size:calc(var(--u)*3.3);line-height:1.2}
+.how li::before{content:counter(how);flex:none;display:grid;place-items:center;width:calc(var(--u)*5.4);height:calc(var(--u)*5.4);border-radius:50%;background:var(--sun);border:calc(var(--u)*.5) solid var(--ink);font-family:var(--f-display);font-size:calc(var(--u)*3)}
+.step{display:grid;gap:calc(var(--u)*3)}
+.step-h{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*7);line-height:1;color:#fff;text-shadow:var(--ol)}
+#degGrid{display:grid;gap:calc(var(--u)*2.6)}
+.deg-grid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*2)}
+.deg-sec{margin:calc(var(--u)*2) 0 0;display:flex;align-items:baseline;flex-wrap:wrap;gap:calc(var(--u)*2);font-weight:800;font-size:calc(var(--u)*3.2)}
+.deg-sec span{font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*6);color:#fff;text-shadow:var(--ol)}
+.deg{display:grid;gap:calc(var(--u)*.8);align-content:start;text-align:left;min-width:0;padding:calc(var(--u)*1.8) calc(var(--u)*2.4) calc(var(--u)*2);cursor:pointer;font-weight:900;font-size:calc(var(--u)*3.4);line-height:1.1}
+.deg small{font-weight:800;font-size:calc(var(--u)*2);color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.deg small.has{color:var(--tomato)}
+.deg:hover{background:#fff4cc}
+.deg:active,.mode:active,.btn:active,.mini:active{transform:translateY(calc(var(--u)*.7));box-shadow:0 calc(var(--u)*.1) 0 var(--ink)}
+.deg.all{grid-column:1/-1;background:var(--sun);font-size:calc(var(--u)*4)}
+.deg.all small{color:var(--ink)}
+.picked{margin:0;font-weight:800;font-size:calc(var(--u)*3.6)}
+.wind-list{display:grid;gap:calc(var(--u)*2.4)}
+.mode{display:grid;gap:calc(var(--u)*1);text-align:left;padding:calc(var(--u)*2.4) calc(var(--u)*3);cursor:pointer}
+.mode:hover{background:#fff4cc}
+.m-n{font-family:var(--f-display);font-size:calc(var(--u)*6);line-height:1;color:var(--sky);text-shadow:0 calc(var(--u)*.5) 0 var(--ink)}
+.mode[data-mode="high"] .m-n{color:#f3a712}
+.mode[data-mode="weird"] .m-n{color:var(--tomato)}
+.m-d{font-weight:700;font-size:calc(var(--u)*3.1);line-height:1.25;color:var(--mute)}
+.btn{font-family:var(--f-display);font-size:calc(var(--u)*5);background:var(--sun);border:calc(var(--u)*.6) solid var(--ink);border-radius:999px;padding:calc(var(--u)*1.6) calc(var(--u)*5);cursor:pointer;box-shadow:0 calc(var(--u)*.9) 0 var(--ink)}
+.btn.alt{background:var(--paper)}
+#backDeg{justify-self:start}
+
+/* Results: the script comes back marked */
+#over{align-items:center;text-align:center;justify-content:center}
+.over-h{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*10);line-height:1;color:#fff;text-shadow:var(--ol),0 calc(var(--u)*1.6) 0 var(--ink)}
+.script{position:relative;width:88%;box-sizing:border-box;padding:calc(var(--u)*4) calc(var(--u)*4) calc(var(--u)*4.4);display:grid;justify-items:center;gap:calc(var(--u)*2);transform:rotate(-1.5deg);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.9))}
+.grade{display:grid;place-items:center;width:calc(var(--u)*30);height:calc(var(--u)*30);border:calc(var(--u)*1.1) solid var(--tomato);border-radius:50%;font-family:var(--f-hand);font-size:calc(var(--u)*15);line-height:1;color:var(--tomato);transform:rotate(-10deg);animation:stamp .5s cubic-bezier(.3,1.6,.5,1) both}
+.o-comment{margin:0;font-family:var(--f-hand);font-size:calc(var(--u)*4.4);line-height:1.25;color:var(--tomato);max-width:24ch}
+.o-stats{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*2);width:88%}
+.o-stats div{padding:calc(var(--u)*1.6) calc(var(--u)*2);display:grid;gap:calc(var(--u)*.4)}
+.o-stats dt{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.o-stats dd{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*5.4);line-height:1;font-variant-numeric:tabular-nums}
+.newbest{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*4.4);color:var(--sun);text-shadow:var(--ol);animation:bob .8s ease-in-out infinite}
+.o-btns{display:flex;flex-wrap:wrap;gap:calc(var(--u)*2.6);justify-content:center}
+.o-foot{margin:0;font-weight:800;font-size:calc(var(--u)*3.3);line-height:1.3;max-width:28ch}
+
+/* Bottom bar */
+.bottom{position:absolute;left:0;right:0;bottom:0;z-index:7;display:flex;justify-content:space-between;align-items:flex-end;padding:calc(var(--u)*3);pointer-events:none}
+.mini{pointer-events:auto;font-weight:900;font-size:calc(var(--u)*2.4);text-transform:uppercase;letter-spacing:.04em;padding:calc(var(--u)*1) calc(var(--u)*2.2);border-radius:999px;cursor:pointer}
+.mini[aria-pressed="false"]{color:var(--mute);background:#e4e8ec}
+
+@keyframes bob{50%{transform:translateY(calc(var(--u)*-1.2))}}
+@keyframes wig{from{transform:var(--wt) rotate(-12deg)}to{transform:var(--wt) rotate(12deg)}}
+@keyframes stamp{0%{transform:rotate(-10deg) scale(2.4);opacity:0}100%{transform:rotate(-10deg) scale(1);opacity:1}}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}14%{opacity:1;transform:scale(1)}78%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(calc(var(--u)*-8))}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.toast.show{opacity:1}}
+</style>
+
+<div id="app">
+  <div id="frame">
+    <canvas id="scene" width="240" height="400" aria-label="A cartoon study room with a wastepaper bin and a desk fan"></canvas>
+
+    <div class="hud" id="hud" hidden>
+      <div class="row1">
+        <div class="tag sticker"><span class="k">Score</span><span class="v" id="h-score">0</span></div>
+        <div class="tag sticker mid"><span class="k">Paper</span><span class="v" id="h-q">1/12</span></div>
+        <div class="tag sticker right"><span class="k">Combo</span><span class="v" id="h-combo">–</span></div>
+      </div>
+      <div class="windbox sticker" id="windbox">
+        <span class="wk">Wind</span>
+        <svg class="warrow" id="warrow" viewBox="0 0 64 26" aria-hidden="true"><path d="M3 8.5h36V2.5l22 10.5-22 10.5v-6H3z"/></svg>
+        <b id="wnum">0.0</b>
+        <span class="chip" id="wchip" hidden></span>
+      </div>
+    </div>
+
+    <div class="paper-layer" id="paperLayer" hidden>
+      <div class="paper-wrap">
+        <div class="paper" id="paper">
+          <div class="p-head"><span id="p-deg">Final examination</span><span id="p-num">Q1</span></div>
+          <div class="p-marks" id="p-marks">[10 marks]</div>
+          <p class="p-q" id="p-q"></p>
+          <div class="p-lines"></div>
+          <div class="p-foot">Answer all questions. Show your working. Do not cry on the script.</div>
+        </div>
+      </div>
+      <div class="tap-hint"><span>Tap to crumple</span><span class="pips" id="pips"><i></i><i></i><i></i></span></div>
+    </div>
+
+    <div class="prompt" id="prompt" hidden>Swipe up to throw</div>
+    <div class="toast" id="toast"></div>
+
+    <section class="screen" id="menu">
+      <header class="title-block">
+        <h1 class="title"><span>Paper</span><span>Toss</span><span class="rage">Rage!</span></h1>
+        <p class="lede">Exam season edition. Crumple the question, bin it, feel slightly better.</p>
+      </header>
+      <ol class="how sticker">
+        <li>Read the question. Or don't.</li>
+        <li>Tap the paper 3 times to crumple it.</li>
+        <li>Swipe up to throw. Watch the fan and aim off for the wind.</li>
+      </ol>
+      <div class="step" id="stepDeg">
+        <h2 class="step-h">Pick your degree</h2>
+        <div id="degGrid"></div>
+      </div>
+      <div class="step" id="stepWind" hidden>
+        <h2 class="step-h">Pick your wind</h2>
+        <p class="picked" id="pickedDeg"></p>
+        <div class="wind-list">
+          <button class="mode sticker" id="m-breeze" data-mode="breeze"><span class="m-n">Breeze</span><span class="m-d">Steady wind. Read the arrow and aim off a little.</span></button>
+          <button class="mode sticker" id="m-high" data-mode="high"><span class="m-n">High Wind</span><span class="m-d">Someone opened the window during a monsoon. Gusts included.</span></button>
+          <button class="mode sticker" id="m-weird" data-mode="weird"><span class="m-n">Weird Wind</span><span class="m-d">Swirls, updrafts, U-turns. Sometimes the wind lies to you.</span></button>
+        </div>
+        <button class="btn alt" id="backDeg">Back</button>
+      </div>
+    </section>
+
+    <section class="screen" id="over" hidden>
+      <h2 class="over-h">Pencils down!</h2>
+      <div class="script sticker">
+        <div class="grade" id="oGrade">A</div>
+        <p class="o-comment" id="oComment"></p>
+      </div>
+      <dl class="o-stats">
+        <div class="sticker"><dt>Score</dt><dd id="oScore">0</dd></div>
+        <div class="sticker"><dt>Binned</dt><dd id="oMade">0/12</dd></div>
+        <div class="sticker"><dt>Best combo</dt><dd id="oCombo">0</dd></div>
+        <div class="sticker"><dt>Your best</dt><dd id="oBest">0</dd></div>
+      </dl>
+      <p class="newbest" id="oNew" hidden>New personal best!</p>
+      <div class="o-btns">
+        <button class="btn" id="again">Retake</button>
+        <button class="btn alt" id="newDeg">New degree</button>
+      </div>
+      <p class="o-foot">Now drink some water and get back to it. You've got this.</p>
+    </section>
+
+    <div class="bottom">
+      <button class="mini sticker" id="quit" hidden>Quit</button>
+      <span></span>
+      <button class="mini sticker" id="snd" aria-pressed="true">Sound on</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Question bank: niche concepts per degree ---------- */
+const BANK = {
+  cs:{school:'NUS',name:'Computer Science',q:[
+    "Prove the halting problem is undecidable using a diagonalisation argument.",
+    "Explain why Dijkstra's algorithm fails with negative edge weights. Give a counterexample.",
+    "Use the potential method to show a dynamic array push is O(1) amortised.",
+    "Define the Y combinator and use it to compute factorial without named recursion.",
+    "Explain the ABA problem in a lock-free compare-and-swap stack.",
+    "Prove that any comparison-based sort needs Ω(n log n) comparisons.",
+    "Explain how Tomasulo's algorithm removes WAR and WAW hazards.",
+    "State the CAP theorem. Which property does a Dynamo-style store give up?",
+    "Use the pumping lemma to prove {aⁿbⁿ | n ≥ 0} is not regular.",
+    "Explain tail-call optimisation, and why CPython refuses to do it.",
+    "Derive the maximum height of an AVL tree with n nodes.",
+    "Why does Byzantine fault tolerance need 3f + 1 nodes to survive f traitors?"]},
+  eng:{school:'NUS',name:'Engineering (CDE)',q:[
+    "Derive the Euler buckling load for a pinned-pinned column.",
+    "Sketch the Bode plot of G(s) = 10 / s(s+1)(s+10) and find the phase margin.",
+    "Use Mohr's circle to find the principal stresses for σx = 80, σy = −20, τxy = 30 MPa.",
+    "Explain why no heat engine can beat the Carnot efficiency.",
+    "Explain cavitation in centrifugal pumps and define NPSH required.",
+    "Starting from Navier–Stokes, derive Hagen–Poiseuille flow in a pipe.",
+    "Use Routh–Hurwitz to find the range of K for which s³ + 2s² + 3s + K is stable.",
+    "Explain the skin effect in AC conductors and how Litz wire reduces it.",
+    "Draw the shear force and bending moment diagrams for a cantilever under a UDL.",
+    "Explain fatigue failure using an S–N curve. What is the endurance limit of steel?",
+    "State the maximum power transfer theorem and prove it for a resistive load.",
+    "Why is the laminar–turbulent transition in pipes not a sharp Reynolds number?"]},
+  med:{school:'NUS',name:'Medicine',q:[
+    "Explain the mechanism behind Cushing's triad in raised intracranial pressure.",
+    "A patient has Kussmaul breathing and a high anion gap. List the causes (MUDPILES).",
+    "Describe the course of the recurrent laryngeal nerves. Why is the left one longer?",
+    "State Virchow's triad and link each element to a clinical risk factor.",
+    "Differentiate nephritic from nephrotic syndrome.",
+    "Explain the Frank–Starling mechanism at the level of the sarcomere.",
+    "Name the five terminal branches of the brachial plexus and their root values.",
+    "Why do ACE inhibitors cause a dry cough, and why don't ARBs?",
+    "Describe Beck's triad and the condition it points to.",
+    "Explain the Wolff–Chaikoff effect.",
+    "How do you elicit Kernig's sign, and what does a positive result suggest?",
+    "Na⁺ 128, euvolaemic, concentrated urine. Explain the diagnosis of SIADH."]},
+  law:{school:'NUS',name:'Law',q:[
+    "Does the postal acceptance rule apply to email? Discuss Entores v Miles Far East.",
+    "Apply Lord Atkin's neighbour principle from Donoghue v Stevenson.",
+    "Explain the rule in Rylands v Fletcher and its modern limits.",
+    "Distinguish ratio decidendi from obiter dicta with an example.",
+    "Promissory estoppel is \"a shield, not a sword.\" Discuss with Combe v Combe.",
+    "Explain remoteness of damage in contract under Hadley v Baxendale.",
+    "Explain the eggshell skull rule.",
+    "Is a flick knife in a shop window an offer? Discuss Fisher v Bell.",
+    "Explain the rule against perpetuities.",
+    "Apply the Caparo three-stage test for a duty of care.",
+    "Can practical benefit be good consideration? Discuss Williams v Roffey Bros.",
+    "Explain oblique intention and the virtual certainty test in R v Woollin."]},
+  biz:{school:'NUS',name:'Business Administration',q:[
+    "Apply Porter's Five Forces to the bubble tea industry.",
+    "Explain the BCG matrix. When should a firm keep a \"dog\"?",
+    "Explain the Innovator's Dilemma with one real example.",
+    "Compute customer lifetime value with $40 monthly margin and 30% monthly churn.",
+    "Draw a Blue Ocean strategy canvas for a budget airline.",
+    "Explain the bullwhip effect in supply chains and two ways to dampen it.",
+    "Explain Hofstede's power distance dimension.",
+    "Use the VRIO framework to tell a sustained advantage from a temporary one.",
+    "Explain the Ansoff matrix and the riskiest quadrant.",
+    "Describe Tuckman's stages of group development. Which stage is your project group in?",
+    "Why did Google use a Dutch auction for its IPO?",
+    "Explain the principal–agent problem and how stock options try to fix it."]},
+  econ:{school:'NUS',name:'Economics',q:[
+    "Derive the Slutsky equation and use it to explain a Giffen good.",
+    "Explain the Lucas critique.",
+    "Why is the Phillips curve vertical in the long run?",
+    "Find the Cournot equilibrium for two firms with P = 100 − Q and MC = 10.",
+    "State the Coase theorem and the assumptions it needs.",
+    "Explain Ricardian equivalence and why it rarely holds.",
+    "Explain the impossible trinity of open-economy macroeconomics.",
+    "State Arrow's impossibility theorem and its conditions.",
+    "Explain the Balassa–Samuelson effect.",
+    "Explain adverse selection using Akerlof's market for lemons.",
+    "Derive the Solow steady state and the golden-rule savings rate.",
+    "Explain the Laffer curve and the main criticisms of using it."]},
+  psych:{school:'NUS',name:'Psychology',q:[
+    "Explain the Stroop effect and what it says about automatic processing.",
+    "Describe Milgram's obedience study and its ethical problems.",
+    "Explain the Dunning–Kruger effect. Are you experiencing it right now?",
+    "Explain the Yerkes–Dodson law. Where is your stress on the curve today?",
+    "Describe Baddeley's working memory model, including the episodic buffer.",
+    "Explain the fundamental attribution error.",
+    "Describe the Rescorla–Wagner model of classical conditioning.",
+    "Explain the McGurk effect.",
+    "Explain the bystander effect and the criticisms of the Genovese case.",
+    "Describe Piaget's conservation tasks and the preoperational stage.",
+    "Use the ego depletion literature to explain the replication crisis.",
+    "Explain signal detection theory, including hits, false alarms and d′."]},
+  math:{school:'NUS',name:'Mathematics',q:[
+    "Prove that √2 is irrational.",
+    "State and prove the Cauchy–Schwarz inequality.",
+    "Prove there is no surjection from a set onto its power set.",
+    "Evaluate ∫₀^∞ sin(x)/x dx using contour integration.",
+    "Prove that every group of order p² is abelian.",
+    "State the Banach–Tarski paradox and the axiom it depends on.",
+    "Prove that a continuous function on [a, b] is uniformly continuous.",
+    "Find the eigenvalues of a 3×3 rotation matrix and interpret them.",
+    "Show that the harmonic series diverges.",
+    "State Gödel's first incompleteness theorem.",
+    "Use the Sylow theorems to show every group of order 15 is cyclic.",
+    "Prove the one-dimensional Brouwer fixed point theorem."]},
+  phys:{school:'NUS',name:'Physics',q:[
+    "Derive the energy levels of a particle in a 1D infinite square well.",
+    "Explain the ultraviolet catastrophe and how Planck fixed it.",
+    "Use Noether's theorem to derive conservation of linear momentum.",
+    "Resolve the twin paradox. Who ages less, and why is it not symmetric?",
+    "Explain the Meissner effect in superconductors.",
+    "Derive the Schwarzschild radius (a Newtonian argument is fine).",
+    "Explain Bose–Einstein condensation.",
+    "Explain the Aharonov–Bohm effect.",
+    "Explain why the sky is blue using Rayleigh scattering.",
+    "Write down the Lagrangian for a double pendulum.",
+    "Explain Bell's inequality and what its violation implies.",
+    "Describe the Stern–Gerlach experiment and what it showed about spin."]},
+  chem:{school:'NUS',name:'Chemistry',q:[
+    "Explain why cyclohexane prefers the chair conformation over the boat.",
+    "Explain the Jahn–Teller distortion in Cu²⁺ octahedral complexes.",
+    "Predict the major Diels–Alder product and justify it with the endo rule.",
+    "Explain Markovnikov versus anti-Markovnikov addition of HBr.",
+    "Apply the Woodward–Hoffmann rules to a thermal 4π electrocyclic reaction.",
+    "Explain the lanthanide contraction and one of its consequences.",
+    "Derive the integrated rate law for a second-order reaction.",
+    "State the Hammond postulate and apply it to an SN1 reaction.",
+    "Use Hückel's 4n + 2 rule to explain why benzene is aromatic.",
+    "Explain the inert pair effect in thallium and lead.",
+    "Explain the chelate effect in thermodynamic terms.",
+    "Why do SN2 reactions proceed with Walden inversion?"]},
+  bio:{school:'NUS',name:'Life Sciences',q:[
+    "Explain Mitchell's chemiosmotic theory of ATP synthesis.",
+    "Describe the lac operon when lactose is high and glucose is low.",
+    "State the five assumptions of Hardy–Weinberg equilibrium.",
+    "Explain how Cas9 uses the PAM sequence to find its target.",
+    "Describe the Meselson–Stahl experiment and what it proved.",
+    "Explain the Red Queen hypothesis.",
+    "Describe how Okazaki fragments are made and joined.",
+    "Explain kin selection using Hamilton's rule, rB > C.",
+    "Explain how the Na⁺/K⁺-ATPase maintains the resting potential.",
+    "Give the evidence for the endosymbiotic theory.",
+    "Explain genomic imprinting with one human example.",
+    "Describe C4 photosynthesis and Kranz anatomy."]},
+  arch:{school:'NUS',name:'Architecture',q:[
+    "Explain Le Corbusier's Five Points of Architecture.",
+    "\"Less is more\" versus \"less is a bore\". Discuss Mies and Venturi.",
+    "Discuss Vitruvius' firmitas, utilitas and venustas.",
+    "Explain the Modulor and its basis in the golden ratio.",
+    "Explain how flying buttresses made Gothic cathedrals possible.",
+    "Discuss Brutalism using the Barbican Estate as a case study.",
+    "Explain Louis Kahn's served and servant spaces.",
+    "Explain passive stack ventilation in a tropical building.",
+    "Explain Christopher Alexander's idea of a pattern language.",
+    "Why did Charles Jencks say modernism died when Pruitt–Igoe was demolished?",
+    "Discuss the conservation of the Golden Mile Complex.",
+    "Explain Rem Koolhaas' concept of Junkspace."]},
+  fin:{school:'NUS',name:'Accountancy',q:[
+    "Explain how IFRS 16 changed lease accounting.",
+    "Derive the Black–Scholes PDE using a delta-hedged portfolio.",
+    "Explain goodwill impairment testing.",
+    "State the Modigliani–Miller theorem without taxes and prove it.",
+    "Derive put–call parity with a no-arbitrage argument.",
+    "Explain how accelerated depreciation creates a deferred tax liability.",
+    "Explain the CAPM. What does beta actually measure?",
+    "Why does FIFO report higher profit than weighted average when prices rise?",
+    "Explain the duration and convexity of a bond.",
+    "Explain the going concern assumption and when auditors doubt it.",
+    "Explain the weak, semi-strong and strong forms of market efficiency.",
+    "Walk through the IFRS 15 five-step revenue recognition model."]},
+  hist:{school:'NUS',name:'History',q:[
+    "Assess the Schlieffen Plan's role in the outbreak of the First World War.",
+    "Was the fall of Singapore in 1942 a failure of the Singapore strategy?",
+    "Explain the significance of the Peace of Westphalia (1648).",
+    "Assess the impact of the Black Death on feudalism.",
+    "Explain the causes of the Meiji Restoration.",
+    "Assess the Great Man theory of history using Napoleon.",
+    "What caused the Late Bronze Age collapse? Were the Sea Peoples to blame?",
+    "Assess the role of the Defenestration of Prague in starting the Thirty Years' War.",
+    "Explain the impact of the Opium Wars on Qing China.",
+    "Compare orthodox and revisionist histories of the Cold War.",
+    "Explain how the Rosetta Stone was used to decipher hieroglyphs.",
+    "Why did the Byzantine Empire outlast Rome in the West by a thousand years?"]},
+  phil:{school:'NUS',name:'Philosophy',q:[
+    "Explain the Gettier problem.",
+    "Discuss the trolley problem from a Kantian perspective.",
+    "Use the Ship of Theseus to discuss personal identity.",
+    "Explain Searle's Chinese Room argument.",
+    "Explain Hume's is–ought problem.",
+    "Explain Mary's Room and the knowledge argument.",
+    "Explain Nozick's experience machine.",
+    "Explain Wittgenstein's private language argument.",
+    "Explain Rawls' veil of ignorance.",
+    "Resolve Zeno's paradox of Achilles and the tortoise.",
+    "Explain Camus' absurd. Must we imagine Sisyphus happy?",
+    "Explain Pascal's wager and the many-gods objection."]},
+  pol:{school:'NUS',name:'Political Science',q:[
+    "Explain Duverger's law.",
+    "Explain the security dilemma in international relations.",
+    "Explain Olson's logic of collective action.",
+    "\"Anarchy is what states make of it.\" Compare realism and constructivism.",
+    "Explain the median voter theorem.",
+    "Explain Huntington's clash of civilisations and its critiques.",
+    "Explain the democratic peace theory.",
+    "Explain Weber's three types of legitimate authority.",
+    "Explain gerrymandering through packing and cracking.",
+    "Explain the Thucydides trap.",
+    "Explain Gramsci's concept of cultural hegemony.",
+    "Explain Michels' iron law of oligarchy."]},
+  lit:{school:'NUS',name:'English Literature',q:[
+    "Discuss Stevens as an unreliable narrator in The Remains of the Day.",
+    "Explain Barthes' \"The Death of the Author\".",
+    "Analyse free indirect discourse in Austen's Emma.",
+    "Explain T. S. Eliot's objective correlative.",
+    "Discuss the green light in The Great Gatsby.",
+    "Explain Bakhtin's heteroglossia.",
+    "Scan \"Shall I compare thee to a summer's day?\" and explain iambic pentameter.",
+    "Explain Freytag's pyramid and where it breaks down.",
+    "Summarise Said's argument in Orientalism.",
+    "Explain Keats' negative capability.",
+    "Discuss Great Expectations as a Bildungsroman.",
+    "Explain Shklovsky's defamiliarisation (ostranenie)."]},
+  ds:{school:'NUS',name:'Data Science & Analytics',q:[
+    "Explain the bias–variance tradeoff.",
+    "Explain Simpson's paradox with a worked example.",
+    "Derive the closed-form solution for ordinary least squares.",
+    "Why does p = 0.049 not mean a 95% chance your hypothesis is true?",
+    "Explain the curse of dimensionality.",
+    "Explain why dropout acts as a regulariser.",
+    "Solve the Monty Hall problem using Bayes' theorem.",
+    "Explain the kernel trick in support vector machines.",
+    "State the central limit theorem and when it fails.",
+    "Explain vanishing gradients and why ReLU helps.",
+    "Compare L1 and L2 regularisation. Why does L1 give sparse weights?",
+    "Explain the Benjamini–Hochberg procedure for false discovery rate."]},
+  ncse:{school:'NITC',name:'Computer Science & Engg',q:[
+    "Prove that {ww | w ∈ {a,b}*} is not context-free.",
+    "Explain Belady's anomaly using FIFO page replacement.",
+    "Why might a BCNF decomposition fail to preserve dependencies? Give an example.",
+    "Run the Banker's algorithm on a given state and decide whether it is safe.",
+    "Derive the maximum throughput of slotted ALOHA (1/e).",
+    "Explain Peterson's solution and why it breaks on modern CPUs without memory fences.",
+    "Convert an NFA with ε-moves to a DFA using subset construction.",
+    "Compute FIRST and FOLLOW sets and show why the grammar is not LL(1).",
+    "Explain how two-phase locking guarantees conflict serialisability.",
+    "Solve T(n) = 2T(n/2) + n log n. Why doesn't the basic Master theorem apply?",
+    "Multiply −7 × 3 using Booth's algorithm.",
+    "Derive link utilisation for Go-Back-N with window size N."]},
+  nece:{school:'NITC',name:'Electronics & Comm',q:[
+    "Explain the Early effect in a BJT and its effect on output resistance.",
+    "Derive the Nyquist criterion for zero intersymbol interference.",
+    "State the Barkhausen criterion for sustained oscillations.",
+    "Show that a uniform quantiser's SNR is 6.02n + 1.76 dB.",
+    "Use the Smith chart to match a load with a single stub.",
+    "Prove the sampling theorem and explain aliasing.",
+    "Explain the Miller effect in a common-emitter amplifier.",
+    "State Shannon's channel capacity theorem and explain the Shannon limit.",
+    "Compare decimation-in-time and decimation-in-frequency radix-2 FFT.",
+    "Explain the threshold effect in FM demodulation.",
+    "Explain the body effect in a MOSFET.",
+    "Explain how a PLL works. Define lock range and capture range."]},
+  neee:{school:'NITC',name:'Electrical & Electronics',q:[
+    "Explain the Ferranti effect in long transmission lines.",
+    "Derive the condition for maximum efficiency of a transformer.",
+    "Explain armature reaction in a DC machine and how interpoles fix it.",
+    "Use the equal area criterion to explain transient stability.",
+    "Use double revolving field theory to explain why a 1-phase induction motor won't self-start.",
+    "Explain the per-unit system and why power engineers use it.",
+    "Derive the output voltage of a buck converter in continuous conduction.",
+    "Explain corona loss and Peek's formula.",
+    "Use symmetrical components to analyse a single line-to-ground fault.",
+    "Explain how a Buchholz relay protects a transformer.",
+    "Explain Ward–Leonard speed control of a DC motor.",
+    "Draw and interpret the circle diagram of an induction motor."]},
+  nmech:{school:'NITC',name:'Mechanical Engg',q:[
+    "Explain the Rankine cycle with reheat and why it raises efficiency.",
+    "Explain hunting in a centrifugal governor.",
+    "Use the Grashof criterion to classify a four-bar linkage.",
+    "Derive the critical whirling speed of a shaft.",
+    "Why is the Otto cycle more efficient than Diesel at the same compression ratio?",
+    "Explain the Coriolis component of acceleration in a slotted-lever mechanism.",
+    "Derive the effectiveness–NTU relation for a counterflow heat exchanger.",
+    "Compare the Tresca and von Mises theories of failure.",
+    "Explain the vapour compression refrigeration cycle and define COP.",
+    "Explain boundary layer separation. Why do golf balls have dimples?",
+    "Explain the gyroscopic effect on a ship turning to port.",
+    "Explain the eutectoid reaction on the Fe–C phase diagram."]},
+  nciv:{school:'NITC',name:'Civil Engg',q:[
+    "Explain Terzaghi's one-dimensional consolidation theory.",
+    "Explain Lacey's regime theory for alluvial canals.",
+    "Explain Bligh's creep theory for weirs on permeable foundations.",
+    "Design a singly reinforced beam by the limit state method of IS 456.",
+    "Analyse a two-span continuous beam using moment distribution.",
+    "Explain the Mohr–Coulomb failure criterion for soils.",
+    "Derive the superelevation needed on a horizontal highway curve.",
+    "Explain the unit hydrograph and how to build an S-curve from it.",
+    "Explain the Marshall method of bituminous mix design.",
+    "Derive the first-order BOD equation.",
+    "Use the Müller-Breslau principle to sketch an influence line.",
+    "State Darcy's law and when it stops being valid."]},
+  nchem:{school:'NITC',name:'Chemical Engg',q:[
+    "Use McCabe–Thiele to find the number of ideal stages in a distillation column.",
+    "Explain the Ergun equation for pressure drop in a packed bed.",
+    "Explain the Damköhler number and what it says about a reactor.",
+    "Explain the Chilton–Colburn analogy between heat and mass transfer.",
+    "Compare CSTR and PFR sizing using a Levenspiel plot.",
+    "Explain the Thiele modulus and effectiveness factor of a catalyst pellet.",
+    "Explain fugacity and when the Lewis–Randall rule applies.",
+    "Tune a PID controller using the Ziegler–Nichols method.",
+    "Why does a shell-and-tube exchanger need an LMTD correction factor?",
+    "Apply the Gibbs phase rule to a binary azeotrope.",
+    "Derive the Kremser equation for absorption.",
+    "Justify the Haber–Bosch conditions using Le Chatelier's principle."]},
+  nprod:{school:'NITC',name:'Production Engg',q:[
+    "Explain Taylor's tool life equation.",
+    "Derive the shear angle relation from Merchant's circle.",
+    "Use Johnson's rule to sequence jobs on two machines.",
+    "Derive the economic order quantity (EOQ) model.",
+    "Explain how a kanban system limits work in progress.",
+    "Explain the hole-basis system of limits and fits.",
+    "Explain the Taguchi quality loss function.",
+    "Find the critical path and total float in a project network.",
+    "State Little's law and apply it to a production line.",
+    "Explain the principle of electrical discharge machining (EDM).",
+    "Explain X̄ and R control charts.",
+    "List the six big losses in Total Productive Maintenance."]},
+  nbio:{school:'NITC',name:'Biotechnology',q:[
+    "Explain Monod kinetics and how it differs from Michaelis–Menten.",
+    "Linearise Michaelis–Menten kinetics using a Lineweaver–Burk plot.",
+    "Measure kLa using the dynamic gassing-out method.",
+    "Explain the principle of Southern blotting.",
+    "Explain PCR and why Taq polymerase is used.",
+    "Explain the Luedeking–Piret model of product formation.",
+    "Explain the scale-up criteria for a stirred-tank bioreactor.",
+    "Explain blue–white screening in gene cloning.",
+    "Explain hybridoma technology for monoclonal antibodies.",
+    "Explain affinity chromatography using a His-tag.",
+    "Explain Sanger dideoxy sequencing.",
+    "Define the D-value and z-value in thermal sterilisation."]},
+  nphy:{school:'NITC',name:'Engineering Physics',q:[
+    "Explain the Hall effect and how it identifies the majority carrier.",
+    "Use the Kronig–Penney model to explain the origin of band gaps.",
+    "Derive the Einstein A and B coefficients.",
+    "Explain the de Haas–van Alphen effect.",
+    "Use Bragg's law to find lattice spacing from X-ray diffraction.",
+    "Explain the DC and AC Josephson effects.",
+    "Derive the numerical aperture of a step-index optical fibre.",
+    "Explain the Debye model and the T³ law for specific heat.",
+    "Explain how a scanning tunnelling microscope uses quantum tunnelling.",
+    "Explain the normal and anomalous Zeeman effect.",
+    "Explain the Michelson–Morley experiment and its null result.",
+    "Compare population inversion in three-level and four-level lasers."]},
+  narch:{school:'NITC',name:'Architecture (B.Arch)',q:[
+    "Discuss Laurie Baker's cost-effective brick architecture in Kerala.",
+    "Explain the nalukettu and the role of the nadumuttam courtyard.",
+    "Explain Charles Correa's idea of open-to-sky space.",
+    "Explain the Vastu Purusha Mandala.",
+    "Discuss Le Corbusier's Capitol Complex in Chandigarh.",
+    "Discuss B. V. Doshi's Sangath.",
+    "Explain FAR and ground coverage under the National Building Code.",
+    "Why are traditional Kerala roofs steep with wide eaves?",
+    "Discuss Louis Kahn's IIM Ahmedabad campus.",
+    "Explain how jaalis control ventilation and daylight.",
+    "Explain stepwells as climate-responsive architecture.",
+    "Discuss Geoffrey Bawa's tropical modernism."]}
+};
+const NUS_ORDER = ['cs','eng','med','law','biz','fin','econ','psych','math','phys','chem','bio','ds','arch','hist','phil','pol','lit'];
+const NITC_ORDER = ['ncse','nece','neee','nmech','nciv','nchem','nprod','nbio','nphy','narch'];
+const ORDER = NUS_ORDER.concat(NITC_ORDER);
+const MARKS = [5,6,8,10,12,15,20,25];
+const GOOD = ['Binned.','Not examinable.','Return to sender.','Deleted from memory.','Marks: 0. Vibes: 100.','That one had it coming.','Straight to recycling.'];
+const BAD = ['The question survives.','On the floor. Like me at 3am.','Wind 1, you 0.','See you at the retake.','The bin dodged.','That was a warm-up.'];
+
+/* ---------- World ---------- */
+const W=240,H=400,CX=120,HY=112,F=260,CAMY=1.3,CAMZ=-1;
+const RW=2.2,RH=2.8,RD=7;
+const G=9.8,BR=0.07,BIN_R=0.36,BIN_H=0.6,PAPERS=12,FAN_Z=3.2;
+const INK='#23303f';
+
+const $=s=>document.querySelector(s);
+const frame=$('#frame'),cv=$('#scene'),ctx=cv.getContext('2d');
+const bg=document.createElement('canvas');const bgx=bg.getContext('2d');
+let K=1;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function hash(a,b){let h=(Math.imul(a|0,374761393)+Math.imul(b|0,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296;}
+function proj(x,y,z){const d=Math.max(0.08,z-CAMZ),s=F/d;return [CX+x*s,HY+(CAMY-y)*s,s];}
+
+/* ---------- Sound (synthesised, starts on first tap) ---------- */
+const Snd={ctx:null,on:true,
+  init(){try{
+    if(!this.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+      const c=this.ctx=new C();this.m=c.createGain();this.m.gain.value=this.on?.55:0;this.m.connect(c.destination);
+      const n=c.sampleRate*2;this.nb=c.createBuffer(1,n,c.sampleRate);const d=this.nb.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+      const s=c.createBufferSource();s.buffer=this.nb;s.loop=true;this.wf=c.createBiquadFilter();this.wf.type='bandpass';this.wf.frequency.value=400;this.wf.Q.value=.7;
+      this.wg=c.createGain();this.wg.gain.value=0;s.connect(this.wf);this.wf.connect(this.wg);this.wg.connect(this.m);s.start();}
+    if(this.ctx.state==='suspended')this.ctx.resume();
+  }catch(e){this.ctx=null;}},
+  toggle(){this.on=!this.on;if(this.ctx)this.m.gain.setTargetAtTime(this.on?.55:0,this.ctx.currentTime,.02);},
+  noise(dur,f0,f1,g,q,when){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);const s=c.createBufferSource();s.buffer=this.nb;const f=c.createBiquadFilter();f.type='bandpass';f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);const gn=c.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(gn);gn.connect(this.m);s.start(t,Math.random()*1.5,dur+.05);},
+  tone(f0,dur,type,g,f1,when){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);const o=c.createOscillator();o.type=type||'triangle';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);const gn=c.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(gn);gn.connect(this.m);o.start(t);o.stop(t+dur+.02);},
+  wind(v){if(!this.ctx)return;const t=this.ctx.currentTime;this.wg.gain.setTargetAtTime(v*.2,t,.3);this.wf.frequency.setTargetAtTime(260+v*700,t,.3);},
+  crumple(k){for(let i=0;i<3+k*2;i++)this.noise(.04+Math.random()*.05,2200+Math.random()*3000,700,.4,.9,i*.028);},
+  whoosh(){this.noise(.38,300,1900,.28,.8);},
+  clang(){this.tone(1320,.22,'triangle',.08);this.tone(1990,.15,'sine',.06);this.tone(660,.3,'triangle',.05);},
+  thud(){this.tone(150,.12,'sine',.3,60);this.noise(.06,500,200,.15,1);},
+  score(m){[523,659,784,1047].forEach((f,i)=>this.tone(f*(1+Math.min(m-1,4)*.06),.14,'triangle',.12,0,i*.07));},
+  miss(){this.tone(330,.4,'triangle',.1,110);},
+  blip(){this.tone(880,.06,'triangle',.08);}
+};
+
+/* ---------- Vector helpers ---------- */
+function ell(c,x,y,rx,ry,a0,a1,ccw){c.ellipse(x,y,Math.max(.01,rx),Math.max(.01,ry),0,a0||0,a1===undefined?Math.PI*2:a1,!!ccw);}
+function poly(c,pts){c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();}
+function quadZ(c,x0,x1,y0,y1,z){poly(c,[proj(x0,y0,z),proj(x1,y0,z),proj(x1,y1,z),proj(x0,y1,z)]);}
+function quadX(c,x,z0,z1,y0,y1){poly(c,[proj(x,y0,z0),proj(x,y0,z1),proj(x,y1,z1),proj(x,y1,z0)]);}
+function quadY(c,y,x0,x1,z0,z1){poly(c,[proj(x0,y,z0),proj(x1,y,z0),proj(x1,y,z1),proj(x0,y,z1)]);}
+function paint(c,fill,lw,stroke){if(fill){c.fillStyle=fill;c.fill();}if(lw){c.lineWidth=lw;c.strokeStyle=stroke||INK;c.lineJoin='round';c.lineCap='round';c.stroke();}}
+function seg(c,a,b,lw,col){c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineWidth=lw;c.strokeStyle=col;c.lineCap='round';c.stroke();}
+
+/* ---------- Static room ---------- */
+function renderRoom(){
+  const c=bgx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,bg.width,bg.height);c.setTransform(K,0,0,K,0,0);
+  const ZN=-.6,ws=F/(RD-CAMZ);
+  quadY(c,RH,-RW,RW,ZN,RD);paint(c,'#f3f7f2');
+  quadY(c,RH-.001,-.5,.5,3,4.3);paint(c,'#ffffff',.6,'#b8c6c2');
+  quadX(c,-RW,ZN,RD,0,RH);paint(c,'#a6d4cc');
+  quadX(c,RW,ZN,RD,0,RH);paint(c,'#a6d4cc');
+  quadZ(c,-RW,RW,0,RH,RD);paint(c,'#c3e6df');
+  // floor planks
+  quadY(c,0,-RW,RW,ZN,RD);paint(c,'#e4b47e');
+  for(let i=0,x=-RW;x<RW-.01;x+=.244,i++)if(hash(i,3)>.55){quadY(c,0,x,x+.244,ZN,RD);c.fillStyle=hash(i,4)>.5?'rgba(255,255,255,.12)':'rgba(150,90,40,.08)';c.fill();}
+  for(let i=0,x=-RW;x<RW+.01;x+=.244,i++){
+    seg(c,proj(x,0,RD),proj(x,0,ZN),.5,'rgba(140,85,40,.5)');
+    for(let z=RD-hash(i,9)*1.4;z>ZN;z-=1.4)seg(c,proj(x,0,z),proj(Math.min(RW,x+.244),0,z),.45,'rgba(140,85,40,.45)');
+  }
+  // rug
+  const rug=(rx,rz)=>{c.beginPath();for(let k=0;k<=56;k++){const a=k/56*Math.PI*2,p=proj(Math.cos(a)*rx,0,4.5+Math.sin(a)*rz);k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.closePath();};
+  rug(1.3,1.05);paint(c,'#ef8a6f',.8);rug(1.08,.85);paint(c,null,1.1,'rgba(255,255,255,.7)');rug(.6,.46);paint(c,'#f6b38a');
+  // skirting and room edges
+  quadZ(c,-RW,RW,0,.12,RD-.001);paint(c,'#ffffff',.5);
+  quadX(c,-RW+.001,ZN,RD,0,.12);paint(c,'#ffffff');quadX(c,RW-.001,ZN,RD,0,.12);paint(c,'#ffffff');
+  [[[-RW,0,RD],[RW,0,RD]],[[-RW,RH,RD],[RW,RH,RD]],[[-RW,0,RD],[-RW,RH,RD]],[[RW,0,RD],[RW,RH,RD]],[[-RW,0,RD],[-RW,0,ZN]],[[RW,0,RD],[RW,0,ZN]],[[-RW,RH,RD],[-RW,RH,ZN]],[[RW,RH,RD],[RW,RH,ZN]]]
+    .forEach(([a,b])=>seg(c,proj(...a),proj(...b),.8,INK));
+  // window with a daytime view
+  const z=RD-.001;
+  quadZ(c,-.84,.84,.96,1.02,z);paint(c,'#ffffff',.6);
+  quadZ(c,-.78,.78,1.0,2.22,z);paint(c,'#ffffff',.7);
+  const gt=proj(0,2.15,z)[1],gb=proj(0,1.07,z)[1],sky=c.createLinearGradient(0,gt,0,gb);sky.addColorStop(0,'#6cc4f0');sky.addColorStop(1,'#d8f1ff');
+  quadZ(c,-.71,.71,1.07,2.15,z);paint(c,sky);
+  c.save();quadZ(c,-.71,.71,1.07,2.15,z);c.clip();
+  const hill=(base,amp,ph,col)=>{c.beginPath();let p=proj(-.75,1.0,z);c.moveTo(p[0],p[1]);for(let x=-.75;x<=.76;x+=.05){p=proj(x,base+amp*Math.sin(x*4+ph),z);c.lineTo(p[0],p[1]);}p=proj(.75,1.0,z);c.lineTo(p[0],p[1]);c.closePath();paint(c,col,.5);};
+  hill(1.34,.07,1,'#8fd17a');hill(1.22,.05,3,'#5fb35f');
+  [[-.36,1.86],[.3,1.98]].forEach(([cx,cy])=>{[[0,0,.09],[.09,.02,.07],[-.09,-.01,.065],[.03,.06,.07]].forEach(([dx,dy,r])=>{const p=proj(cx+dx,cy+dy,z);c.beginPath();c.arc(p[0],p[1],r*ws,0,Math.PI*2);c.fillStyle='#ffffff';c.fill();});});
+  c.restore();
+  seg(c,proj(0,1.07,z),proj(0,2.15,z),1.6,'#ffffff');seg(c,proj(-.71,1.61,z),proj(.71,1.61,z),1.6,'#ffffff');
+  quadZ(c,-.71,.71,1.07,2.15,z);paint(c,null,.6);
+  // whiteboard
+  quadZ(c,-2.0,-.98,1.0,1.86,z);paint(c,'#c9ced6',.7);quadZ(c,-1.95,-1.03,1.05,1.81,z);paint(c,'#ffffff');
+  quadZ(c,-1.85,-1.15,.96,1.0,z);paint(c,'#9aa4b1',.4);
+  const wb=proj(-1.9,1.68,z);c.textBaseline='alphabetic';
+  c.font=`${.13*ws}px "Permanent Marker", cursive`;c.fillStyle='#2f6fd6';c.fillText('dy/dx = ???',wb[0],wb[1]);
+  c.fillStyle='#ef5b4c';c.fillText('EXAMS IN 2 DAYS',wb[0],wb[1]+.2*ws);
+  c.strokeStyle='#2f6fd6';c.lineWidth=.5;c.beginPath();for(let k=0;k<6;k++){const p=proj(-1.88+k*.12,1.2+(k%2)*.06,z);k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.stroke();
+  // poster
+  quadZ(c,.98,1.7,1.02,1.88,z);paint(c,'#ffd23f',.7);
+  const pc=proj(1.34,1.5,z);c.textAlign='center';c.fillStyle=INK;
+  c.font=`${.34*ws}px "Lilita One", sans-serif`;c.fillText('40%',pc[0],pc[1]);
+  c.font=`900 ${.11*ws}px Nunito, sans-serif`;c.fillText('IS A PASS',pc[0],pc[1]+.17*ws);c.textAlign='left';
+  [[1.0,1.86],[1.68,1.86]].forEach(([x,y])=>{quadZ(c,x-.06,x+.06,y-.03,y+.03,z);paint(c,'rgba(255,255,255,.8)');});
+  // clock at 3:47
+  const ck=proj(0,2.47,z),cr=.15*ws;c.beginPath();c.arc(ck[0],ck[1],cr,0,Math.PI*2);paint(c,'#ffffff',.9);
+  const hand=(a,l,lw,col)=>seg(c,ck,[ck[0]+Math.sin(a)*l,ck[1]-Math.cos(a)*l],lw,col);
+  hand((3+47/60)/12*Math.PI*2,cr*.5,.9,INK);hand(47/60*Math.PI*2,cr*.78,.6,INK);hand(T*2,cr*.8,.3,'#ef5b4c');
+  // corkboard on the left wall
+  quadX(c,-RW+.002,2.4,4.4,1.05,1.9);paint(c,'#c99a63',.6);
+  const notes=['#fff27a','#ff9fb2','#9fdcff','#b6f0a0'];
+  for(let i=0;i<5;i++){const z0=2.55+i*.36+hash(i,1)*.08,y0=1.2+hash(i,2)*.4;quadX(c,-RW+.003,z0,z0+.26,y0,y0+.24);paint(c,notes[i%4],.4);}
+  // door on the right wall
+  quadX(c,RW-.002,3.4,4.6,0,2.05);paint(c,'#b07a52',.7);
+  quadX(c,RW-.003,3.55,4.45,1.15,1.9);paint(c,null,.4,'rgba(35,48,63,.4)');quadX(c,RW-.003,3.55,4.45,.2,1.0);paint(c,null,.4,'rgba(35,48,63,.4)');
+  const kn=proj(RW-.01,1.0,4.38);c.beginPath();c.arc(kn[0],kn[1],.035*kn[2],0,Math.PI*2);paint(c,'#ffd23f',.4);
+}
+
+/* ---------- Sprites ---------- */
+const BLOB=Array.from({length:11},(_,i)=>.86+hash(i,21)*.22);
+const CREASE=[[[-.62,-.15],[-.15,.05],[.2,.4]],[[-.1,-.72],[.12,-.25],[.55,-.1]],[[-.45,.55],[-.05,.3],[.25,.62]],[[.35,-.6],[.6,.15]],[[-.7,.2],[-.35,-.4]]];
+function drawBall(x,y,r,rot){
+  const c=ctx;if(r<.6)return;c.save();c.translate(x,y);c.rotate(rot);
+  const p=new Path2D();BLOB.forEach((k,i)=>{const a=i/BLOB.length*Math.PI*2,px=Math.cos(a)*r*k,py=Math.sin(a)*r*k;i?p.lineTo(px,py):p.moveTo(px,py);});p.closePath();
+  const lx=-.35*r,ly=-.42*r,cs=Math.cos(-rot),sn=Math.sin(-rot);
+  const g=c.createRadialGradient(lx*cs-ly*sn,lx*sn+ly*cs,r*.1,0,0,r*1.1);g.addColorStop(0,'#ffffff');g.addColorStop(.6,'#f2efe6');g.addColorStop(1,'#c3c8d2');
+  c.fillStyle=g;c.fill(p);
+  c.save();c.clip(p);c.lineCap='round';c.lineJoin='round';
+  c.strokeStyle='rgba(70,130,220,.4)';c.lineWidth=Math.max(.25,r*.06);[-.3,.1,.5].forEach(v=>{c.beginPath();c.moveTo(-r,v*r);c.lineTo(r,(v-.15)*r);c.stroke();});
+  c.strokeStyle='rgba(95,105,125,.65)';c.lineWidth=Math.max(.3,r*.08);
+  CREASE.forEach(line=>{c.beginPath();line.forEach(([u,v],i)=>i?c.lineTo(u*r,v*r):c.moveTo(u*r,v*r));c.stroke();});
+  c.restore();
+  c.lineWidth=Math.max(.5,r*.11);c.strokeStyle=INK;c.lineJoin='round';c.stroke(p);
+  c.restore();
+}
+function binGeo(bx,bz){
+  const pT=proj(bx,BIN_H,bz),pB=proj(bx,0,bz),Rb=BIN_R*.8;
+  const tF=proj(bx,BIN_H,bz-BIN_R)[1],tK=proj(bx,BIN_H,bz+BIN_R)[1],bF=proj(bx,0,bz-Rb)[1],bK=proj(bx,0,bz+Rb)[1];
+  return {cx:pT[0],cxB:pB[0],s:pT[2],rxT:BIN_R*pT[2],rxB:Rb*pB[2],cyT:(tF+tK)/2,ryT:Math.max(.5,(tF-tK)/2),cyB:(bF+bK)/2,ryB:Math.max(.5,(bF-bK)/2)};
+}
+function binPath(g){const c=ctx;c.beginPath();c.moveTo(g.cx-g.rxT,g.cyT);c.lineTo(g.cxB-g.rxB,g.cyB);ell(c,g.cxB,g.cyB,g.rxB,g.ryB,Math.PI,0,true);c.lineTo(g.cx+g.rxT,g.cyT);ell(c,g.cx,g.cyT,g.rxT,g.ryT,0,Math.PI,true);c.closePath();}
+function drawBinBody(g){
+  const c=ctx;
+  c.beginPath();ell(c,g.cxB+g.rxB*.3,g.cyB+g.ryB*.35,g.rxB*1.45,g.ryB*1.6);c.fillStyle='rgba(35,48,63,.2)';c.fill();
+  const gr=c.createLinearGradient(g.cx-g.rxT,0,g.cx+g.rxT,0);gr.addColorStop(0,'#5a7593');gr.addColorStop(.28,'#c6d8e8');gr.addColorStop(.55,'#9db4ca');gr.addColorStop(1,'#4f6883');
+  binPath(g);c.fillStyle=gr;c.fill();
+  c.save();binPath(g);c.clip();c.strokeStyle='rgba(35,48,63,.3)';c.lineWidth=Math.max(.35,g.s*.008);
+  for(let th=-1.35;th<=1.36;th+=.27){c.beginPath();c.moveTo(g.cx+g.rxT*Math.sin(th),g.cyT+g.ryT*Math.cos(th));c.lineTo(g.cxB+g.rxB*Math.sin(th),g.cyB+g.ryB*Math.cos(th));c.stroke();}
+  [.34,.67].forEach(k=>{c.beginPath();ell(c,g.cx+(g.cxB-g.cx)*k,g.cyT+(g.cyB-g.cyT)*k,g.rxT+(g.rxB-g.rxT)*k,g.ryT+(g.ryB-g.ryT)*k,0,Math.PI);c.stroke();});
+  c.restore();
+  binPath(g);c.lineWidth=Math.max(.7,g.s*.02);c.strokeStyle=INK;c.lineJoin='round';c.stroke();
+}
+function rim(g,front){const c=ctx,lw=Math.max(.7,g.s*.032);c.beginPath();if(front)ell(c,g.cx,g.cyT,g.rxT,g.ryT,0,Math.PI);else ell(c,g.cx,g.cyT,g.rxT,g.ryT);c.lineCap='round';c.lineWidth=lw*2;c.strokeStyle=INK;c.stroke();c.lineWidth=lw;c.strokeStyle='#e3ecf4';c.stroke();}
+function clipOpening(g){ctx.beginPath();ell(ctx,g.cx,g.cyT,g.rxT*.94,g.ryT*.9);ctx.clip();}
+function drawBinOpening(g){
+  const c=ctx;c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);c.fillStyle='#34404e';c.fill();
+  const n=Math.min(game.binCount,9);
+  if(n>0){c.save();clipOpening(g);for(let i=0;i<n;i++){const lx=g.cx+(hash(i,3)-.5)*g.rxT*1.4,ly=g.cyT+g.ryT*(1.15-.6*n/9)-hash(i,4)*g.ryT*.5;drawBall(lx,ly,BR*g.s*.95,i*1.7);}c.restore();}
+  rim(g,false);
+}
+const fan={a:0,side:-1};
+function drawFan(){
+  const c=ctx,side=fan.side,fx=side*1.3,b=proj(fx,0,FAN_Z),h=proj(fx,1.0,FAN_Z),s=h[2];
+  c.beginPath();ell(c,b[0],b[1],.2*s,.055*s);paint(c,'#5d6b7a',.8);
+  seg(c,b,h,.05*s,INK);seg(c,b,h,.025*s,'#a3b1bf');
+  c.beginPath();ell(c,h[0]+side*.15*s,h[1],.09*s,.11*s);paint(c,'#e9edf2',.8);
+  c.save();c.translate(h[0],h[1]);c.scale(.62,1);
+  c.beginPath();c.arc(0,0,.3*s,0,Math.PI*2);paint(c,'rgba(255,255,255,.45)');
+  const fast=Math.abs(fan.v||0)>9;
+  c.globalAlpha=fast?.55:1;
+  for(let k=0;k<3;k++){c.save();c.rotate(fan.a+k*2.094);c.beginPath();ell(c,.15*s,0,.13*s,.06*s);paint(c,'#5bc0eb',.5/.62*.8);c.restore();}
+  if(fast){c.beginPath();c.arc(0,0,.27*s,0,Math.PI*2);c.fillStyle='rgba(91,192,235,.25)';c.fill();}
+  c.globalAlpha=1;
+  c.lineWidth=.9;c.strokeStyle=INK;c.beginPath();c.arc(0,0,.3*s,0,Math.PI*2);c.stroke();
+  c.lineWidth=.4;c.beginPath();c.arc(0,0,.2*s,0,Math.PI*2);c.stroke();
+  for(let k=0;k<8;k++){const a=k/8*Math.PI*2;c.beginPath();c.moveTo(Math.cos(a)*.05*s,Math.sin(a)*.05*s);c.lineTo(Math.cos(a)*.3*s,Math.sin(a)*.3*s);c.stroke();}
+  c.beginPath();c.arc(0,0,.05*s,0,Math.PI*2);paint(c,'#ffd23f',.7);
+  c.restore();
+}
+
+/* ---------- Game state ---------- */
+let phase='menu',T=0;
+const game={deg:null,mode:'breeze',idx:0,score:0,streak:0,bestStreak:0,made:0,deck:[],binCount:0,gen:0};
+const bin={x:0,z:4.2,tx:0,tz:4.2,amp:0,spd:1,ph:0};
+const wind={mode:'breeze',base:0,gAmp:0,ph:0,event:null,gusts:[]};
+const ball={x:0,y:.5,z:0,vx:0,vy:0,vz:0,rot:0,vr:0,t:0,state:'gone',rim:0,wall:0,floorHits:0,rx:0,rz:0,rested:false,restT:0,done:false};
+let floorBalls=[],crumple=0,crumpleLock=false,trail=[],drag=null;
+const EVENT_LABEL={SWIRL:'Swirl','U-TURN':'U-turn',UPDRAFT:'Updraft',DOWNDRAFT:'Downdraft',WOBBLE:'Wobble',HEADWIND:'Headwind',TAILWIND:'Tailwind',GUSTY:'Gusty'};
+const binX=()=>bin.x+bin.amp*Math.sin(T*bin.spd+bin.ph);
+
+let best={};
+try{best=JSON.parse(localStorage.getItem('ptr-best')||'{}')||{};}catch(e){best={};}
+function saveBest(){try{localStorage.setItem('ptr-best',JSON.stringify(best));}catch(e){}}
+function bestFor(deg){let m=0;for(const k in best)if(k.split('|')[0]===deg)m=Math.max(m,best[k]);return m;}
+
+function windAt(t){
+  const w=wind.base;
+  if(wind.mode==='breeze')return [w,0,0];
+  if(wind.mode==='high')return [w+wind.gAmp*Math.sin(t*6.3+wind.ph),0,0];
+  switch(wind.event){
+    case 'SWIRL':return [w*.4+4.5*Math.cos(t*5+wind.ph),0,4*Math.sin(t*5+wind.ph)];
+    case 'U-TURN':return t<.45?[w,0,0]:[-w*1.8,0,0];
+    case 'UPDRAFT':return [w*.5,3.6,0];
+    case 'DOWNDRAFT':return [w*.5,-3.4,0];
+    case 'WOBBLE':return [w+5*Math.sin(t*11+wind.ph),0,0];
+    case 'HEADWIND':return [w*.4,0,-2.8];
+    case 'TAILWIND':return [w*.4,0,2.6];
+    case 'GUSTY':return [wind.gusts[Math.floor(t/.18)%wind.gusts.length],0,0];
+    case 'LIAR':return [-w*1.4,0,0];
+  }
+  return [0,0,0];
+}
+function visWind(){
+  if(phase==='menu'||phase==='over')return [1.2*Math.sin(T*.5)+1.4,0,0];
+  if(phase==='flight'||phase==='result')return windAt(ball.t);
+  if(wind.mode==='weird'&&wind.event!=='LIAR')return windAt(T%1.6);
+  if(wind.mode==='high')return windAt(T);
+  return [wind.base,0,0];
+}
+function setupWind(){
+  wind.mode=game.mode;wind.ph=Math.random()*6.28;wind.event=null;
+  if(game.mode==='breeze')wind.base=rand(-1.8,1.8);
+  else if(game.mode==='high'){wind.base=(Math.random()<.5?-1:1)*rand(2.8,5.6);wind.gAmp=rand(.6,1.4);}
+  else{wind.base=rand(-2.6,2.6);wind.event=pick(['SWIRL','U-TURN','UPDRAFT','DOWNDRAFT','WOBBLE','HEADWIND','TAILWIND','GUSTY','LIAR']);wind.gusts=Array.from({length:30},()=>rand(-6,6));}
+  fan.side=wind.base>=0?-1:1;
+}
+
+/* ---------- UI ---------- */
+const hud=$('#hud'),paperLayer=$('#paperLayer'),paperEl=$('#paper'),prompt=$('#prompt'),toastEl=$('#toast'),menu=$('#menu'),over=$('#over'),quitBtn=$('#quit'),sndBtn=$('#snd');
+const warrow=$('#warrow'),wnum=$('#wnum'),wchip=$('#wchip'),windbox=$('#windbox');
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function toast(lines,cls){toastEl.className='toast '+(cls||'');toastEl.innerHTML=lines.map((l,i)=>l?`<div class="t${i+1}">${l}</div>`:'').join('');void toastEl.offsetWidth;toastEl.classList.add('show');}
+function updateHUD(){
+  $('#h-score').textContent=game.score;
+  $('#h-q').textContent=`${game.idx}/${PAPERS}`;
+  const c=$('#h-combo');c.textContent=game.streak>=2?`x${Math.min(game.streak,5)}`:'–';c.classList.toggle('hot',game.streak>=2);
+  const w=wind.base,str=clamp(Math.abs(w)/6,0,1),k=.6+str*.6,tf=`scale(${w<0?-k:k},${k})`;
+  warrow.style.setProperty('--wt',tf);warrow.style.transform=tf;
+  warrow.style.fill=str>.55?'#ef5b4c':str>.28?'#ffd23f':'#5bc0eb';
+  wnum.textContent=Math.abs(w).toFixed(1);
+  windbox.classList.toggle('weird',wind.mode==='weird');
+  if(wind.mode==='high'){wchip.hidden=false;wchip.className='chip gust';wchip.textContent='Gusts';}
+  else if(wind.mode==='weird'&&wind.event!=='LIAR'){wchip.hidden=false;wchip.className='chip';wchip.textContent=EVENT_LABEL[wind.event];}
+  else wchip.hidden=true;
+}
+function buildDegGrid(){
+  const root=$('#degGrid');root.innerHTML='';
+  const mk=(parent,id,label,cls)=>{const b=document.createElement('button');b.className='deg sticker'+(cls?' '+cls:'');b.id='deg-'+id;const bs=bestFor(id);
+    b.innerHTML=`<span>${esc(label)}</span><small class="${bs?'has':''}">${bs?'Best '+bs:id==='all'?'NUS + NITC, all '+ORDER.length+' degrees':'12 questions'}</small>`;
+    b.addEventListener('click',()=>{Snd.init();Snd.blip();pickDegree(id);});parent.appendChild(b);};
+  const top=document.createElement('div');top.className='deg-grid';root.appendChild(top);
+  mk(top,'all','Chaos Mode: every degree at once','all');
+  [['NUS','National University of Singapore',NUS_ORDER],['NITC','NIT Calicut',NITC_ORDER]].forEach(([tag,full,ids])=>{
+    const h=document.createElement('h3');h.className='deg-sec';h.innerHTML=`<span>${tag}</span>${esc(full)}`;root.appendChild(h);
+    const g=document.createElement('div');g.className='deg-grid';root.appendChild(g);ids.forEach(id=>mk(g,id,BANK[id].name));});
+}
+function degName(id){return id==='all'?'Chaos Mode':BANK[id].school+' '+BANK[id].name;}
+function pickDegree(id){game.deg=id;$('#pickedDeg').innerHTML=`Degree: <b>${esc(degName(id))}</b>`;$('#stepDeg').hidden=true;$('#stepWind').hidden=false;menu.scrollTop=0;$('#m-breeze').focus({preventScroll:true});}
+function showMenu(){
+  game.gen++;phase='menu';buildDegGrid();
+  menu.hidden=false;over.hidden=true;hud.hidden=true;paperLayer.hidden=true;prompt.hidden=true;quitBtn.hidden=true;
+  $('#stepDeg').hidden=false;$('#stepWind').hidden=true;menu.scrollTop=0;
+  ball.state='gone';bin.tx=0;bin.tz=4.2;bin.amp=0;fan.side=-1;
+}
+function startGame(mode){
+  game.mode=mode;game.idx=0;game.score=0;game.streak=0;game.bestStreak=0;game.made=0;game.binCount=0;game.gen++;
+  floorBalls=[];
+  if(game.deg==='all'){const all=[];ORDER.forEach(id=>BANK[id].q.forEach(q=>all.push({d:BANK[id].school+' '+BANK[id].name,q})));game.deck=shuffle(all).slice(0,PAPERS);}
+  else game.deck=shuffle(BANK[game.deg].q.map(q=>({d:BANK[game.deg].school+' '+BANK[game.deg].name,q})));
+  menu.hidden=true;over.hidden=true;hud.hidden=false;quitBtn.hidden=false;
+  newPaper();
+}
+function newPaper(){
+  if(game.idx>=PAPERS){endGame();return;}
+  game.idx++;const i=game.idx;
+  const zMin=3+Math.min(1.5,i*.13);bin.tz=rand(zMin,Math.min(5.8,zMin+1));
+  bin.amp=i>=6?rand(.35,.6)+(i>=10?.3:0):0;bin.spd=i>=10?rand(1.6,2.2):rand(.9,1.4);bin.ph=Math.random()*6.28;
+  const lim=RW-.5-bin.amp;bin.tx=clamp(rand(-1.1,1.1)*(.5+i/24),-lim,lim);
+  setupWind();
+  const item=game.deck[(i-1)%game.deck.length];
+  $('#p-deg').textContent=item.d+' · Final';
+  $('#p-num').textContent='Q'+i+'/'+PAPERS;
+  $('#p-marks').textContent=Math.random()<.12?'[This question is 40% of your grade]':`[${pick(MARKS)} marks]`;
+  $('#p-q').textContent=item.q;
+  crumple=0;crumpleLock=false;paperEl.className='paper';setPips();
+  paperLayer.hidden=false;prompt.hidden=true;ball.state='gone';
+  phase='paper';updateHUD();
+}
+function setPips(){[...$('#pips').children].forEach((p,k)=>p.classList.toggle('on',k<crumple));}
+function crumpleTap(e){
+  if(phase!=='paper'||crumpleLock)return;e.preventDefault();Snd.init();
+  crumple++;Snd.crumple(crumple);paperEl.className='paper c'+crumple;setPips();
+  if(crumple>=3){crumpleLock=true;const gen=game.gen;
+    setTimeout(()=>{if(gen===game.gen)paperEl.className='paper c3 gone';},230);
+    setTimeout(()=>{if(gen!==game.gen)return;paperLayer.hidden=true;crumpleLock=false;beginAim();},560);}
+}
+function beginAim(){
+  phase='aim';Object.assign(ball,{x:0,y:.5,z:0,state:'held',rot:Math.random()*6});
+  prompt.textContent='Swipe up to throw';prompt.hidden=false;
+  if(game.idx===6)toast(['The bin is moving now!'],'warn');
+  else if(game.idx===10)toast(['The bin is speeding up!'],'warn');
+}
+function throwBall(dxN,upN){
+  const p=clamp(upN/.55,0,1),s=4.4+4*p,th=55*Math.PI/180,vz=s*Math.cos(th),vy=s*Math.sin(th);
+  const vx=vz*(dxN/Math.max(.03,upN))*.8;
+  Object.assign(ball,{x:0,y:.5,z:0,vx,vy,vz,t:0,state:'fly',rim:0,wall:0,floorHits:0,rested:false,restT:0,done:false,vr:rand(-14,14)});
+  phase='flight';prompt.hidden=true;Snd.whoosh();
+  if(wind.mode==='weird'&&wind.event==='LIAR')toast(['The wind lied!'],'warn');
+}
+function onScore(){
+  game.streak++;game.made++;game.bestStreak=Math.max(game.bestStreak,game.streak);game.binCount++;
+  const mult=Math.min(game.streak,5),pts=(10+(ball.rim===0?5:0)+Math.round((bin.z-3)*6)+(bin.amp>0?5:0))*mult;
+  game.score+=pts;ball.state='gone';
+  const t1=ball.rim===0?'Swish!':ball.rim>1?'Rattled in!':'Off the rim... in!';
+  toast([t1,'+'+pts,mult>1?`x${mult} combo`:'',pick(GOOD)],'good');Snd.score(mult);
+  finishThrow();
+}
+function onMiss(){
+  game.streak=0;
+  if(ball.floorHits>0&&ball.z>0){floorBalls.push({x:ball.x,z:ball.z,rot:ball.rot});if(floorBalls.length>14)floorBalls.shift();}
+  ball.state='gone';
+  toast([ball.rim?'Rimmed out!':ball.wall?'Off the bin!':'Airball!','','',pick(BAD)],'bad');Snd.miss();
+  finishThrow();
+}
+function finishThrow(){phase='result';updateHUD();const gen=game.gen;setTimeout(()=>{if(gen===game.gen)newPaper();},1500);}
+function gradeFor(m){
+  if(m>=12)return ['S','Flawless. Every question destroyed. The examiners are scared of you.'];
+  if(m>=10)return ['A+','First Class Honours in Waste Management.'];
+  if(m>=8)return ['A',"Dean's List. Of bins."];
+  if(m>=6)return ['B','Solid. The bell curve smiles upon you.'];
+  if(m>=4)return ['C','You passed. Technically. Like the rest of us.'];
+  if(m>=2)return ['D','The questions fought back. Rest, then retake.'];
+  return ['F','The wind marked your script. It was harsh.'];
+}
+function endGame(){
+  phase='over';hud.hidden=true;prompt.hidden=true;paperLayer.hidden=true;quitBtn.hidden=true;
+  const [g,c]=gradeFor(game.made),key=game.deg+'|'+game.mode,prev=best[key]||0,isNew=game.score>prev&&game.score>0;
+  if(isNew){best[key]=game.score;saveBest();}
+  const gr=$('#oGrade');gr.textContent=g;gr.style.animation='none';void gr.offsetWidth;gr.style.animation='';
+  $('#oComment').textContent=c;$('#oScore').textContent=game.score;
+  $('#oMade').textContent=`${game.made}/${PAPERS}`;$('#oCombo').textContent='x'+game.bestStreak;$('#oBest').textContent=Math.max(prev,game.score);
+  $('#oNew').hidden=!isNew;over.hidden=false;over.scrollTop=0;
+  Snd.score(5);
+}
+
+/* ---------- Input ---------- */
+paperLayer.addEventListener('pointerdown',crumpleTap);
+function toCanvas(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H,a:1};}
+cv.addEventListener('pointerdown',e=>{if(phase!=='aim')return;Snd.init();drag={x:e.clientX,y:e.clientY};trail=[toCanvas(e)];try{cv.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+cv.addEventListener('pointermove',e=>{if(!drag)return;trail.push(toCanvas(e));if(trail.length>28)trail.shift();});
+cv.addEventListener('pointerup',e=>{
+  if(!drag)return;const r=frame.getBoundingClientRect(),up=(drag.y-e.clientY)/r.height,dx=(e.clientX-drag.x)/r.height;drag=null;
+  if(phase!=='aim')return;
+  if(up<.04){prompt.textContent='Swipe up, not down!';return;}
+  throwBall(dx,up);
+});
+cv.addEventListener('pointercancel',()=>{drag=null;});
+document.addEventListener('keydown',e=>{if(phase==='paper'&&(e.key===' '||e.key==='Enter')&&!(e.target instanceof HTMLButtonElement))crumpleTap(e);});
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{Snd.init();Snd.blip();startGame(b.dataset.mode);}));
+$('#backDeg').addEventListener('click',()=>{Snd.blip();$('#stepDeg').hidden=false;$('#stepWind').hidden=true;});
+$('#again').addEventListener('click',()=>{Snd.init();Snd.blip();startGame(game.mode);});
+$('#newDeg').addEventListener('click',()=>{Snd.blip();showMenu();});
+quitBtn.addEventListener('click',()=>{Snd.blip();showMenu();});
+sndBtn.addEventListener('click',()=>{Snd.init();Snd.toggle();sndBtn.textContent=Snd.on?'Sound on':'Sound off';sndBtn.setAttribute('aria-pressed',String(Snd.on));});
+
+/* ---------- Simulation ---------- */
+function stepBall(dt){
+  const b=ball;b.t+=dt;
+  const bx=binX(),bz=bin.z;
+  if(b.state==='in'){
+    b.vy-=G*dt;b.y+=b.vy*dt;b.rx*=.9;b.rz*=.9;b.x=bx+b.rx;b.z=bz+b.rz;b.rot+=b.vr*dt*.3;
+    if(b.y<BR+.03){b.y=BR+.03;if(!b.rested){b.rested=true;b.restT=0;Snd.thud();}}
+    if(b.rested){b.restT+=dt;if(b.restT>.2&&!b.done){b.done=true;onScore();}}
+    return;
+  }
+  const w=windAt(b.t);
+  b.vx+=w[0]*dt;b.vy+=(w[1]-G)*dt;b.vz+=w[2]*dt;
+  const py=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;b.rot+=b.vr*dt;
+  const dx=b.x-bx,dz=b.z-bz,d=Math.hypot(dx,dz)||1e-4;
+  if(py>=BIN_H&&b.y<BIN_H){
+    if(d<=BIN_R-BR){b.state='in';const lim=BIN_R-BR-.04,k=d>lim?lim/d:1;b.rx=dx*k;b.rz=dz*k;b.vy=Math.min(b.vy,-1);return;}
+    if(d<=BIN_R+BR&&b.rim<4){
+      const nx=dx/d,nz=dz/d,dir=d<BIN_R?-1:1,kick=.9+Math.random()*.6;
+      b.vx=b.vx*.35+nx*dir*kick;b.vz=b.vz*.35+nz*dir*kick;b.vy=Math.abs(b.vy)*.3+.8;b.y=BIN_H+.002;b.rim++;b.vr*=-1;Snd.clang();return;
+    }
+  }
+  if(b.y<BIN_H&&d<BIN_R+BR){
+    const nx=dx/d,nz=dz/d;b.x=bx+nx*(BIN_R+BR);b.z=bz+nz*(BIN_R+BR);
+    const vn=b.vx*nx+b.vz*nz;if(vn<0){b.vx-=1.6*vn*nx;b.vz-=1.6*vn*nz;if(!b.wall)Snd.clang();b.wall++;}
+  }
+  if(b.y<BR){b.y=BR;if(b.vy<0){if(b.vy<-1)Snd.thud();b.vy=-b.vy*.35;if(b.vy<.4)b.vy=0;}b.floorHits++;b.vx*=.6;b.vz*=.6;b.vr*=.6;}
+  if(b.y<=BR+.001){const f=Math.max(0,1-3*dt);b.vx*=f;b.vz*=f;b.vr*=f;}
+  if(Math.abs(b.x)>RW-BR){b.x=Math.sign(b.x)*(RW-BR);b.vx=-b.vx*.4;}
+  if(b.z>RD-BR){b.z=RD-BR;b.vz=-b.vz*.4;Snd.thud();}
+  if(b.y>RH-BR){b.y=RH-BR;b.vy=-Math.abs(b.vy)*.3;}
+  const sp=Math.hypot(b.vx,b.vy,b.vz);
+  if((b.floorHits>0&&sp<.35)||b.t>3.4||b.z<-.4){b.done=true;onMiss();}
+}
+
+const parts=Array.from({length:26},()=>({x:rand(0,W),y:rand(60,H*.8),s:rand(.6,1.4),vx:0,vy:0}));
+function update(dt){
+  const k=Math.min(1,dt*5);bin.x+=(bin.tx-bin.x)*k;bin.z+=(bin.tz-bin.z)*k;
+  if(phase==='flight'&&ball.state!=='gone'&&!ball.done){const n=8;for(let i=0;i<n&&phase==='flight';i++)stepBall(dt/n);}
+  const wv=visWind(),mag=Math.hypot(wv[0],wv[1],wv[2]);
+  fan.v=(1.5+mag*3.2)*(fan.side<0?1:-1);fan.a+=fan.v*dt;
+  for(const p of parts){
+    const vx=(wv[0]*15+wv[2]*3)*p.s,vy=-wv[1]*11*p.s+Math.sin(T*2+p.x*.05)*3;
+    p.x+=vx*dt;p.y+=vy*dt;p.vx=vx;p.vy=vy;
+    if(p.x>W+10)p.x=-10;if(p.x<-10)p.x=W+10;if(p.y<60)p.y=H*.8;if(p.y>H*.84)p.y=62;
+  }
+  if(!drag&&trail.length){for(const t of trail)t.a-=dt*3;trail=trail.filter(t=>t.a>0);}
+  Snd.wind(phase==='menu'||phase==='over'?.1:Math.min(1,mag/6));
+}
+
+/* ---------- Render ---------- */
+function drawParticles(){
+  const c=ctx;c.strokeStyle='rgba(255,255,255,.75)';c.lineCap='round';c.lineWidth=.9;
+  for(const p of parts){const L=clamp(Math.hypot(p.vx,p.vy)*.14,1,10),a=Math.atan2(p.vy,p.vx);
+    c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x-Math.cos(a)*L,p.y-Math.sin(a)*L);c.stroke();}
+}
+function drawBallWorld(b){const p=proj(b.x,b.y,b.z);drawBall(p[0],p[1],BR*p[2],b.rot);}
+function drawShadow(b){
+  if(b.y>2.6)return;const p=proj(b.x,0,b.z),f=proj(b.x,0,b.z-BR)[1],k=proj(b.x,0,b.z+BR)[1];
+  ctx.beginPath();ell(ctx,p[0],(f+k)/2,BR*1.1*p[2],Math.max(.6,(f-k)/2*1.1));ctx.fillStyle=`rgba(35,48,63,${clamp(.32-b.y*.09,.06,.32)})`;ctx.fill();
+}
+function drawFloorBall(fb){const p=proj(fb.x,BR,fb.z);drawBall(p[0],p[1],BR*p[2],fb.rot);}
+function drawAimHint(){
+  const p=proj(0,.5,0),c=ctx,y=p[1]-30-Math.abs(Math.sin(T*4))*6;
+  c.beginPath();c.moveTo(CX,y-9);c.lineTo(CX+7,y);c.lineTo(CX+3,y);c.lineTo(CX+3,y+8);c.lineTo(CX-3,y+8);c.lineTo(CX-3,y);c.lineTo(CX-7,y);c.closePath();
+  paint(c,'#ffd23f',1.2);
+}
+function drawTrail(){
+  if(trail.length<2)return;const c=ctx;c.lineCap='round';c.lineJoin='round';
+  for(let i=1;i<trail.length;i++){const a=trail[i-1],b=trail[i];c.globalAlpha=clamp(b.a,0,1)*(i/trail.length);c.lineWidth=3;c.strokeStyle='#ffffff';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
+  c.globalAlpha=1;
+}
+function render(){
+  ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(bg,0,0);ctx.setTransform(K,0,0,K,0,0);
+  const bx=binX(),bz=bin.z,g=binGeo(bx,bz),b=ball;
+  const flying=b.state==='fly',held=b.state==='held';
+  const items=[];
+  for(const fb of floorBalls)items.push({z:fb.z,draw:()=>drawFloorBall(fb)});
+  items.push({z:FAN_Z,draw:drawFan});
+  items.push({z:bz,draw:()=>{drawBinBody(g);drawBinOpening(g);if(b.state==='in'){ctx.save();clipOpening(g);drawBallWorld(b);ctx.restore();rim(g,true);}}});
+  if(flying){const above=b.z>bz&&b.y>=BIN_H+.15;items.push({z:above?bz-.01:b.z,draw:()=>drawBallWorld(b)});drawShadow(b);}
+  else if(held)items.push({z:0,draw:()=>{const p=proj(0,.5+Math.sin(T*3)*.015,0);drawBall(p[0],p[1],BR*p[2],b.rot);}});
+  items.sort((a,c)=>c.z-a.z).forEach(it=>it.draw());
+  drawParticles();drawTrail();
+  if(phase==='aim'&&!drag)drawAimHint();
+}
+
+/* ---------- Layout + loop ---------- */
+function fit(){
+  const app=$('#app'),cs=getComputedStyle(app);
+  const aw=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),ah=app.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+  const fw=Math.max(200,Math.floor(Math.min(aw,ah*.6))),fh=Math.floor(fw/.6);
+  frame.style.width=fw+'px';frame.style.height=fh+'px';frame.style.setProperty('--u',(fw/100)+'px');
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=bg.width=Math.round(fw*dpr);cv.height=bg.height=Math.round(fh*dpr);K=cv.width/W;
+  renderRoom();
+}
+window.addEventListener('resize',fit);fit();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(renderRoom);
+buildDegGrid();
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;update(dt);render();requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>
