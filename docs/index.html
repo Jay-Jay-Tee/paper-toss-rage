@@ -1221,6 +1221,12 @@ function drawPreview(){
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
   if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
     c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
+  if(frac>=1&&pr.result!=='in'){
+    const [ax,ay,az]=pr.at;
+    const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
+    c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
+    paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);
+  }
   dots.forEach(([px,py,r],i)=>{c.globalAlpha=frac<1?clamp(1.15-i/dots.length,.25,1):1;c.beginPath();c.arc(px,py,r,0,Math.PI*2);paint(c,'#ffffff',Math.max(.6,r*.5));});
   c.globalAlpha=1;
 }
