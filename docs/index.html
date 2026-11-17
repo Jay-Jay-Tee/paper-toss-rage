@@ -179,15 +179,20 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
 .o-stats dd{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*5.4);line-height:1;font-variant-numeric:tabular-nums}
 .newbest{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*4.4);color:var(--sun);-webkit-text-stroke:calc(var(--u)*1.1) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--u)*.9) 0 var(--ink);animation:bob .8s ease-in-out infinite}
 .board{width:88%;box-sizing:border-box;padding:calc(var(--u)*2) calc(var(--u)*2.6) calc(var(--u)*2.2);display:grid;gap:calc(var(--u)*.9);text-align:left}
-.board-head{display:flex;justify-content:space-between;align-items:baseline;gap:calc(var(--u)*2);border-bottom:calc(var(--u)*.35) solid rgba(35,48,63,.28);padding-bottom:calc(var(--u)*.9)}
+.board-head{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--u)*1.4);border-bottom:calc(var(--u)*.35) solid rgba(35,48,63,.28);padding-bottom:calc(var(--u)*.9)}
 .board-title{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*3.2);line-height:1;letter-spacing:.02em}
 .board-sub{font-weight:900;font-size:calc(var(--u)*1.65);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);white-space:nowrap}
+.board-name{flex:1;min-width:0;display:flex}
+.board-name input{width:100%;min-width:0;font-family:var(--f-body);font-weight:800;font-size:max(calc(var(--u)*2.2),16px);color:var(--ink);background:#fffdf6;border:calc(var(--u)*.3) solid rgba(35,48,63,.4);border-radius:calc(var(--u)*1);padding:calc(var(--u)*.35) calc(var(--u)*.9);box-sizing:border-box;outline:none}
+.board-name input:focus{border-color:var(--ink);box-shadow:0 0 0 calc(var(--u)*.3) rgba(255,210,63,.55)}
+.board-name input::placeholder{color:rgba(35,48,63,.4);opacity:1}
 .board-list{margin:0;padding:0;list-style:none;display:grid;gap:calc(var(--u)*.35)}
 .board-list li{display:grid;grid-template-columns:calc(var(--u)*3.8) 1fr auto auto;align-items:center;gap:calc(var(--u)*1.4);padding:calc(var(--u)*.55) calc(var(--u)*.9);border-radius:calc(var(--u)*1)}
 .board-list li.now{background:rgba(255,210,63,.5);box-shadow:inset 0 0 0 calc(var(--u)*.3) var(--ink)}
 .br{display:grid;place-items:center;width:calc(var(--u)*3.4);height:calc(var(--u)*3.4);border-radius:50%;background:#e4e8ec;font-weight:900;font-size:calc(var(--u)*1.8);line-height:1;font-variant-numeric:tabular-nums}
 .board-list li:first-child:not(.empty) .br{background:var(--sun)}
-.bs{display:flex;align-items:center;gap:calc(var(--u)*1);font-family:var(--f-display);font-size:calc(var(--u)*3);line-height:1;font-variant-numeric:tabular-nums}
+.bs{display:flex;align-items:center;min-width:0;gap:calc(var(--u)*1);font-family:var(--f-display);font-size:calc(var(--u)*3);line-height:1;font-variant-numeric:tabular-nums}
+.bn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--f-body);font-weight:800;font-size:calc(var(--u)*1.8);letter-spacing:0;color:var(--mute)}
 .you{font-family:var(--f-body);font-weight:900;font-size:calc(var(--u)*1.5);letter-spacing:.06em;text-transform:uppercase;background:var(--tomato);color:#fff;border-radius:999px;padding:calc(var(--u)*.25) calc(var(--u)*1.1)}
 .bm,.bc{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap}
 .bc{justify-self:end}
@@ -307,7 +312,10 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
       <section class="board sticker" aria-labelledby="oBoardTitle">
         <div class="board-head">
           <h3 class="board-title" id="oBoardTitle">Top runs</h3>
-          <span class="board-sub">Top 5 · this degree</span>
+          <label class="board-name" id="oNameRow" for="oName">
+            <input id="oName" type="text" maxlength="12" placeholder="Add your name" aria-label="Board name" autocomplete="nickname" autocapitalize="words" spellcheck="false" enterkeyhint="done">
+          </label>
+          <span class="board-sub">Top 5 · this setup</span>
         </div>
         <ol class="board-list" id="oBoard"></ol>
         <p class="board-note" id="oBoardNote" hidden>No scored runs here yet. Bin one to start the board.</p>
@@ -1111,12 +1119,17 @@ function saveBest(){try{localStorage.setItem('ptr-best',JSON.stringify(best));}c
 function bestFor(deg){let m=0;for(const k in best)if(k.split('|')[0]===deg)m=Math.max(m,best[k]);return m;}
 
 /* Leaderboard: top 5 runs per degree+wind, kept beside ptr-best so nothing is lost */
-const RUNS_KEY='ptr-runs',RUN_LIMIT=5;
-let runs={};
+const RUNS_KEY='ptr-runs',RUN_LIMIT=5,NAME_KEY='ptr-name',NAME_MAX=12;
+let runs={},playerName='';
 try{runs=JSON.parse(localStorage.getItem(RUNS_KEY)||'{}')||{};}catch(e){runs={};}
 if(!runs||typeof runs!=='object'||Array.isArray(runs))runs={};
+try{playerName=String(localStorage.getItem(NAME_KEY)||'').trim().slice(0,NAME_MAX);}catch(e){playerName='';}
 let lastRun=null;
 function saveRuns(){try{localStorage.setItem(RUNS_KEY,JSON.stringify(runs));}catch(e){}}
+function saveName(name){
+  playerName=name;
+  try{name?localStorage.setItem(NAME_KEY,name):localStorage.removeItem(NAME_KEY);}catch(e){}
+}
 function topRuns(list){
   return (Array.isArray(list)?list:[]).filter(r=>r&&r.s>0)
     .sort((a,b)=>(b.s-a.s)||((b.m||0)-(a.m||0))||((b.c||0)-(a.c||0))||((a.t||0)-(b.t||0)))
@@ -1137,13 +1150,17 @@ function topRuns(list){
 function recordRun(){
   const key=game.deg+'|'+game.mode,list=Array.isArray(runs[key])?runs[key]:[];
   const run={s:game.score,m:game.made,c:game.bestStreak,t:Date.now()};
+  if(playerName)run.n=playerName;
   list.push(run);runs[key]=topRuns(list);saveRuns();
   lastRun=runs[key].includes(run)?run:null;
   return lastRun;
 }
 function renderBoard(){
   const key=game.deg+'|'+game.mode,list=Array.isArray(runs[key])?runs[key]:[];
-  $('#oBoard').innerHTML=list.map((r,i)=>`<li${r===lastRun?' class="now"':''}><span class="br">${i+1}</span><span class="bs">${r.s}${r===lastRun?'<span class="you">new</span>':''}</span><span class="bm">${r.m==null?'—':r.m+'/'+PAPERS}</span><span class="bc">${r.c==null?'—':'x'+r.c}</span></li>`).join('');
+  $('#oBoard').innerHTML=list.map((r,i)=>{
+    const now=r===lastRun,nm=esc((r.n&&String(r.n).trim())||'You');
+    return `<li${now?' class="now"':''}><span class="br">${i+1}</span><span class="bs">${r.s}${now?'<span class="you">new</span>':''}<span class="bn" title="${nm}">${nm}</span></span><span class="bm">${r.m==null?'—':r.m+'/'+PAPERS}</span><span class="bc">${r.c==null?'—':'x'+r.c}</span></li>`;
+  }).join('');
   $('#oBoardNote').hidden=list.length>0;
 }
 
@@ -1317,11 +1334,24 @@ function endGame(){
   $('#oMode').textContent=game.mode==='high'?'High wind':game.mode==='weird'?'Weird wind':'Breeze';
   $('#oPips').innerHTML=Array.from({length:PAPERS},(_,i)=>`<i class="${game.results[i]===true?'made':game.results[i]===false?'miss':''}"></i>`).join('');
   $('#oMade').textContent=`${game.made}/${PAPERS}`;$('#oCombo').textContent='x'+game.bestStreak;$('#oBest').textContent=Math.max(prev,game.score);
-  $('#oNew').hidden=!isNew;renderBoard();over.hidden=false;over.scrollTop=0;
+  $('#oNew').hidden=!isNew;
+  $('#oNameRow').hidden=!lastRun;
+  $('#oName').value=lastRun&&lastRun.n?lastRun.n:'';
+  renderBoard();over.hidden=false;over.scrollTop=0;
   Snd.score(5);
 }
 
 /* ---------- Input ---------- */
+$('#oName').addEventListener('input',e=>{
+  const name=e.target.value.replace(/\s+/g,' ').slice(0,NAME_MAX);
+  if(name!==e.target.value)e.target.value=name;
+  const clean=name.trim();saveName(clean);
+  if(!lastRun)return;
+  if(clean)lastRun.n=clean;else delete lastRun.n;
+  saveRuns();renderBoard();
+});
+$('#oName').addEventListener('blur',e=>{const v=e.target.value.trim();if(v!==e.target.value)e.target.value=v;});
+$('#oName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur();}});
 paperLayer.addEventListener('pointerdown',crumpleTap);
 function toCanvas(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H,a:1};}
 cv.addEventListener('pointerdown',e=>{if(phase!=='aim')return;Snd.init();drag={x:e.clientX,y:e.clientY,cx:e.clientX,cy:e.clientY,h:frame.getBoundingClientRect().height};prompt.textContent='Release to throw';trail=[toCanvas(e)];try{cv.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
