@@ -916,7 +916,7 @@ function launch(dxN,upN){
 }
 function throwBall(dxN,upN){
   const {vx,vy,vz}=launch(dxN,upN);
-  Object.assign(ball,{x:0,y:.5,z:0,vx,vy,vz,t:0,cross:null,state:'fly',rim:0,wall:0,floorHits:0,rested:false,restT:0,done:false,vr:rand(-14,14)});
+  Object.assign(ball,{x:0,y:.5,z:0,vx,vy,vz,t:0,cross:null,floor1:null,state:'fly',rim:0,wall:0,floorHits:0,rested:false,restT:0,done:false,vr:rand(-14,14)});
   phase='flight';prompt.hidden=true;Snd.whoosh();
   if(wind.mode==='weird'&&wind.event==='LIAR')toast(['The wind lied!'],'warn');
 }
@@ -1002,7 +1002,7 @@ function stepBall(dt){
     const nx=dx/d,nz=dz/d;b.x=bx+nx*(BIN_R+BR);b.z=bz+nz*(BIN_R+BR);
     const vn=b.vx*nx+b.vz*nz;if(vn<0){b.vx-=1.6*vn*nx;b.vz-=1.6*vn*nz;if(!b.wall)Snd.clang();b.wall++;}
   }
-  if(b.y<BR){b.y=BR;if(b.vy<0){if(b.vy<-1)Snd.thud();b.vy=-b.vy*.35;if(b.vy<.4)b.vy=0;}b.floorHits++;b.vx*=.6;b.vz*=.6;b.vr*=.6;}
+  if(b.y<BR){if(!b.floor1)b.floor1=[b.x,b.z];b.y=BR;if(b.vy<0){if(b.vy<-1)Snd.thud();b.vy=-b.vy*.35;if(b.vy<.4)b.vy=0;}b.floorHits++;b.vx*=.6;b.vz*=.6;b.vr*=.6;}
   if(b.y<=BR+.001){const f=Math.max(0,1-3*dt);b.vx*=f;b.vz*=f;b.vr*=f;}
   if(Math.abs(b.x)>RW-BR){b.x=Math.sign(b.x)*(RW-BR);b.vx=-b.vx*.4;}
   if(b.z>RD-BR){b.z=RD-BR;b.vz=-b.vz*.4;Snd.thud();}
@@ -1043,28 +1043,40 @@ function drawAimHint(){
   c.beginPath();c.moveTo(CX,y-9);c.lineTo(CX+7,y);c.lineTo(CX+3,y);c.lineTo(CX+3,y+8);c.lineTo(CX-3,y+8);c.lineTo(CX-3,y);c.lineTo(CX-7,y);c.closePath();
   paint(c,'#ffd23f',1.2);
 }
-// Simulates the exact same physics as stepBall (same wind, same integrator) up to the rim plane.
+// Simulates the exact same physics as stepBall (same wind, same integrator) until the ball
+// goes in, hits the rim, hits the side of the bin, or reaches the floor.
+const binXAt=tt=>bin.x+bin.amp*Math.sin(tt*bin.spd+bin.ph);
 function predict(dxN,upN){
   const v=launch(dxN,upN),dt=1/480,pts=[];
   let x=0,y=.5,z=0,vx=v.vx,vy=v.vy,vz=v.vz,t=0;
   for(let i=0;i<4000;i++){
     t+=dt;const w=windAt(t);vx+=w[0]*dt;vy+=(w[1]-G)*dt;vz+=w[2]*dt;const py=y;x+=vx*dt;y+=vy*dt;z+=vz*dt;
-    pts.push([x,y,z]);
-    if(py>=BIN_H&&y<BIN_H)return {pts,end:[x,BIN_H,z]};
-    if(y<0||z>RD||z<-.5)break;
+    pts.push([x,Math.max(y,BR),z]);
+    const bx=binXAt(T+t),d=Math.hypot(x-bx,z-bin.z);
+    if(py>=BIN_H&&y<BIN_H){
+      if(d<=BIN_R-BR)return {pts,result:'in',at:[bx,BIN_H,bin.z]};
+      if(d<=BIN_R+BR)return {pts,result:'rim',at:[x,BIN_H,z]};
+    }
+    if(y<BIN_H&&d<BIN_R+BR)return {pts,result:'side',at:[x,0,z]};
+    if(y<=BR||z>RD-BR||Math.abs(x)>RW-BR)return {pts,result:'floor',at:[clamp(x,-RW+BR,RW-BR),0,Math.min(z,RD-BR)]};
   }
-  return {pts,end:null};
+  return {pts,result:'floor',at:[x,0,z]};
 }
 const SHOW={breeze:1,high:.6,weird:.35};
 function drawPreview(){
   if(!drag||phase!=='aim')return;
   const up=(drag.y-drag.cy)/drag.h,dx=(drag.cx-drag.x)/drag.h;if(up<.04)return;
-  const {pts,end}=predict(dx,up),c=ctx,frac=SHOW[wind.mode]||1,n=Math.floor(pts.length*frac);
+  const pr=predict(dx,up),pts=pr.pts,c=ctx,frac=SHOW[wind.mode]||1,n=Math.floor(pts.length*frac);
   const p0=proj(0,.5,0);let last=p0,acc=0;const dots=[];
   for(let i=0;i<n;i++){const p=proj(...pts[i]);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
-  if(end&&frac>=1){const p=proj(...end),f=proj(end[0],end[1],end[2]-BIN_R*.6)[1],k=proj(end[0],end[1],end[2]+BIN_R*.6)[1];
-    c.beginPath();ell(c,p[0],(f+k)/2,BIN_R*.6*p[2],Math.max(1.2,(f-k)/2));paint(c,'rgba(255,210,63,.7)',1.1,INK);}
+  if(frac>=1){
+    const [ax,ay,az]=pr.at;
+    if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.55)',Math.max(1.2,g.s*.03),'#2e9e48');}
+    else{const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
+      c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
+      paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);}
+  }
   dots.forEach(([px,py,r],i)=>{c.globalAlpha=frac<1?clamp(1.15-i/dots.length,.25,1):1;c.beginPath();c.arc(px,py,r,0,Math.PI*2);paint(c,'#ffffff',Math.max(.6,r*.5));});
   c.globalAlpha=1;
 }
