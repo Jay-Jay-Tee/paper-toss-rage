@@ -827,6 +827,18 @@ function binGeo(bx,bz){
   return {cx:pT[0],cxB:pB[0],s:pT[2],rxT:BIN_R*pT[2],rxB:Rb*pB[2],cyT:(tF+tK)/2,ryT:Math.max(.5,(tF-tK)/2),cyB:(bF+bK)/2,ryB:Math.max(.5,(bF-bK)/2)};
 }
 function binPath(g){const c=ctx;c.beginPath();c.moveTo(g.cx-g.rxT,g.cyT);c.lineTo(g.cxB-g.rxB,g.cyB);ell(c,g.cxB,g.cyB,g.rxB,g.ryB,Math.PI,0,true);c.lineTo(g.cx+g.rxT,g.cyT);ell(c,g.cx,g.cyT,g.rxT,g.ryT,0,Math.PI,true);c.closePath();}
+function binMaskPath(g){
+  const p=new Path2D();
+  p.moveTo(g.cx-g.rxT,g.cyT);
+  p.lineTo(g.cxB-g.rxB,g.cyB);
+  p.ellipse(g.cxB,g.cyB,g.rxB,g.ryB,0,Math.PI,0,true);
+  p.lineTo(g.cx+g.rxT,g.cyT);
+  p.ellipse(g.cx,g.cyT,g.rxT,g.ryT,0,0,Math.PI,true);
+  p.closePath();
+  p.moveTo(g.cx+g.rxT,g.cyT);
+  p.ellipse(g.cx,g.cyT,g.rxT,g.ryT,0,0,Math.PI*2);
+  return p;
+}
 function drawBinBody(g){
   const c=ctx;
   c.beginPath();ell(c,g.cxB+g.rxB*.3,g.cyB+g.ryB*.35,g.rxB*1.45,g.ryB*1.6);c.fillStyle='rgba(35,48,63,.2)';c.fill();
@@ -1188,15 +1200,17 @@ function drawPreview(){
   if(!drag||phase!=='aim')return;
   const up=(drag.y-drag.cy)/drag.h,dx=(drag.cx-drag.x)/drag.h;if(up<.04)return;
   const pr=predict(dx,up),pts=pr.pts,c=ctx,frac=SHOW[wind.mode]||1,n=Math.floor(pts.length*frac);
-  const p0=proj(0,.5,0);let last=p0,acc=0;const dots=[];
-  for(let i=0;i<n;i++){const p=proj(...pts[i]);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
-    const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
+  const p0=proj(0,.5,0),bmask=binMaskPath(binGeo(binX(),bin.z));let last=p0,acc=0,stop=false;const dots=[];
+  for(let i=0;i<n&&!stop;i++){const q=pts[i],p=proj(...q);acc+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;
+    const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;
+      // hide the line as soon as it reaches the bin silhouette, and keep it hidden
+      if(c.isPointInPath(bmask,p[0]*K,p[1]*K))stop=true;
+      else if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
   if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
     c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
   if(frac>=1){
     const [ax,ay,az]=pr.at;
-    if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.55)',Math.max(1.2,g.s*.03),'#2e9e48');
-      const k=Math.max(3,g.rxT*.42);c.save();c.translate(g.cx,g.cyT);c.strokeStyle='#1f7a35';c.lineWidth=Math.max(1,g.s*.022);c.lineCap='round';c.beginPath();c.moveTo(-k*.55,0);c.lineTo(-k*.1,k*.45);c.lineTo(k*.55,-k*.45);c.stroke();c.restore();}
+    if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.55)',Math.max(1.2,g.s*.03),'#2e9e48');}
     else{const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
       c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
       paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);
