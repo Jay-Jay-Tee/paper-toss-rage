@@ -99,6 +99,10 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
 .title span:nth-child(2){padding-left:calc(var(--u)*6);color:#fff}
 .title .rage{color:var(--tomato);padding-left:calc(var(--u)*2)}
 .lede{margin:0;font-weight:800;font-size:calc(var(--u)*3.8);line-height:1.25;max-width:30ch}
+#menu.wind .title-block{gap:calc(var(--u)*1)}
+#menu.wind .title{display:flex;align-items:baseline;gap:calc(var(--u)*1.4);font-size:calc(var(--u)*7);transform:none;text-shadow:0 calc(var(--u)*.8) 0 var(--ink);-webkit-text-stroke:calc(var(--u)*1) var(--ink)}
+#menu.wind .title span{padding-left:0}
+#menu.wind .lede{display:none}
 .how-block{display:grid;gap:calc(var(--u)*2);justify-items:start}
 .how-block summary{list-style:none;display:inline-flex;align-items:center;gap:calc(var(--u)*1.4);cursor:pointer;font-weight:900;font-size:calc(var(--u)*2.8);color:rgba(35,48,63,.72);padding:calc(var(--u)*.3) 0;text-transform:uppercase;letter-spacing:.04em}
 .how-block summary::-webkit-details-marker{display:none}
@@ -175,6 +179,11 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
 .board-head{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--u)*1.4);border-bottom:calc(var(--u)*.35) solid rgba(35,48,63,.28);padding-bottom:calc(var(--u)*.9)}
 .board-title{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*3.2);line-height:1;letter-spacing:.02em}
 .board-sub{font-weight:900;font-size:calc(var(--u)*1.65);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);white-space:nowrap}
+.menu-board{width:100%}
+.board-tabs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:calc(var(--u)*.6)}
+.btab{font-family:var(--f-body);font-weight:900;font-size:calc(var(--u)*1.6);letter-spacing:.04em;text-transform:uppercase;line-height:1;color:var(--mute);background:#e9edf0;border:calc(var(--u)*.3) solid rgba(35,48,63,.28);border-radius:999px;padding:calc(var(--u)*.45) calc(var(--u)*1.1);cursor:pointer}
+.btab:hover{background:#fff4cc}
+.btab[aria-pressed="true"]{background:var(--sun);color:var(--ink);border-color:var(--ink)}
 .board-name{flex:1;min-width:0;display:flex}
 .board-name input{width:100%;min-width:0;font-family:var(--f-body);font-weight:800;font-size:max(calc(var(--u)*2.2),16px);color:var(--ink);background:#fffdf6;border:calc(var(--u)*.3) solid rgba(35,48,63,.4);border-radius:calc(var(--u)*1);padding:calc(var(--u)*.35) calc(var(--u)*.9);box-sizing:border-box;outline:none}
 .board-name input:focus{border-color:var(--ink);box-shadow:0 0 0 calc(var(--u)*.3) rgba(255,210,63,.55)}
@@ -281,6 +290,18 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
           <button class="mode sticker" id="m-weird" data-mode="weird"><span class="mode-top"><span class="m-n">Weird Wind</span><span class="m-tag chaos">Chaos</span></span><span class="m-d">The wind switches direction mid-throw, swirls, or drops. Barely any aim line.</span></button>
         </div>
         <p class="m-pick">Pick one to start. You get 12 questions.</p>
+        <section class="board sticker menu-board" id="menuBoard" aria-labelledby="menuBoardTitle">
+          <div class="board-head">
+            <h3 class="board-title" id="menuBoardTitle">Top runs</h3>
+            <div class="board-tabs" role="group" aria-label="Leaderboard wind mode">
+              <button class="btab" type="button" data-lmode="breeze" aria-pressed="true">Breeze</button>
+              <button class="btab" type="button" data-lmode="high" aria-pressed="false">High</button>
+              <button class="btab" type="button" data-lmode="weird" aria-pressed="false">Weird</button>
+            </div>
+          </div>
+          <ol class="board-list" id="menuBoardList"></ol>
+          <p class="board-note" id="menuBoardNote" hidden>No scored runs for this degree and wind yet.</p>
+        </section>
       </div>
     </section>
 
@@ -1117,7 +1138,7 @@ let runs={},playerName='';
 try{runs=JSON.parse(localStorage.getItem(RUNS_KEY)||'{}')||{};}catch(e){runs={};}
 if(!runs||typeof runs!=='object'||Array.isArray(runs))runs={};
 try{playerName=String(localStorage.getItem(NAME_KEY)||'').trim().slice(0,NAME_MAX);}catch(e){playerName='';}
-let lastRun=null;
+let lastRun=null,menuBoardMode='breeze';
 function saveRuns(){try{localStorage.setItem(RUNS_KEY,JSON.stringify(runs));}catch(e){}}
 function saveName(name){
   playerName=name;
@@ -1155,6 +1176,15 @@ function renderBoard(){
     return `<li${now?' class="now"':''}><span class="br">${i+1}</span><span class="bs">${r.s}${now?'<span class="you">new</span>':''}<span class="bn" title="${nm}">${nm}</span></span><span class="bm">${r.m==null?'—':r.m+'/'+PAPERS}</span><span class="bc">${r.c==null?'—':'x'+r.c}</span></li>`;
   }).join('');
   $('#oBoardNote').hidden=list.length>0;
+}
+function renderMenuBoard(){
+  const key=game.deg+'|'+menuBoardMode,list=Array.isArray(runs[key])?runs[key]:[];
+  $('#menuBoardList').innerHTML=list.map((r,i)=>{
+    const nm=esc((r.n&&String(r.n).trim())||'You');
+    return `<li><span class="br">${i+1}</span><span class="bs">${r.s}<span class="bn" title="${nm}">${nm}</span></span><span class="bm">${r.m==null?'—':r.m+'/'+PAPERS}</span><span class="bc">${r.c==null?'—':'x'+r.c}</span></li>`;
+  }).join('');
+  $('#menuBoardNote').hidden=list.length>0;
+  document.querySelectorAll('#menuBoard .btab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lmode===menuBoardMode)));
 }
 
 function windAt(t){
@@ -1226,9 +1256,9 @@ function buildDegGrid(){
   document.querySelectorAll('#schoolTabs .tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.school===game.school)));
 }
 function degName(id){return id==='all'?'Chaos Mode':BANK[id].school+' '+BANK[id].name;}
-function pickDegree(id){game.deg=id;$('#pickedDeg').innerHTML=`Degree: <b>${esc(degName(id))}</b>`;$('#stepDeg').hidden=true;$('#stepWind').hidden=false;menu.scrollTop=0;$('#m-breeze').focus({preventScroll:true});}
+function pickDegree(id){game.deg=id;$('#pickedDeg').innerHTML=`Degree: <b>${esc(degName(id))}</b>`;$('#stepDeg').hidden=true;$('#stepWind').hidden=false;menu.classList.add('wind');renderMenuBoard();menu.scrollTop=0;$('#m-breeze').focus({preventScroll:true});}
 function showMenu(){
-  game.gen++;phase='menu';buildDegGrid();
+  game.gen++;phase='menu';menuBoardMode=game.mode;menu.classList.remove('wind');buildDegGrid();
   menu.hidden=false;over.hidden=true;hud.hidden=true;paperLayer.hidden=true;prompt.hidden=true;quitBtn.hidden=true;bottomBar.hidden=true;
   $('#stepDeg').hidden=false;$('#stepWind').hidden=true;menu.scrollTop=0;
   ball.state='gone';bin.tx=0;bin.tz=4.2;bin.amp=0;fan.side=-1;
@@ -1358,8 +1388,9 @@ cv.addEventListener('pointerup',e=>{
 cv.addEventListener('pointercancel',()=>{drag=null;});
 document.addEventListener('keydown',e=>{if(phase==='paper'&&(e.key===' '||e.key==='Enter')&&!(e.target instanceof HTMLButtonElement))crumpleTap(e);});
 document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{Snd.init();Snd.blip();startGame(b.dataset.mode);}));
+document.querySelectorAll('#menuBoard .btab').forEach(b=>b.addEventListener('click',()=>{Snd.init();Snd.blip();menuBoardMode=b.dataset.lmode;renderMenuBoard();}));
 document.querySelectorAll('#schoolTabs .tab').forEach(b=>b.addEventListener('click',()=>{Snd.init();Snd.blip();game.school=b.dataset.school;buildDegGrid();}));
-$('#backDeg').addEventListener('click',()=>{Snd.blip();$('#stepDeg').hidden=false;$('#stepWind').hidden=true;});
+$('#backDeg').addEventListener('click',()=>{Snd.blip();menu.classList.remove('wind');$('#stepDeg').hidden=false;$('#stepWind').hidden=true;});
 $('#again').addEventListener('click',()=>{Snd.init();Snd.blip();startGame(game.mode);});
 $('#newDeg').addEventListener('click',()=>{Snd.blip();showMenu();});
 quitBtn.addEventListener('click',()=>{Snd.blip();showMenu();});
