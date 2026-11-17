@@ -148,13 +148,15 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
 .back-link:hover{opacity:1}
 
 /* Results: the script comes back marked */
-#over{align-items:center;text-align:center;justify-content:center}
-.over-h{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*10);line-height:1;color:#fff;-webkit-text-stroke:calc(var(--u)*1.4) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--u)*1.2) 0 var(--ink)}
-.script{position:relative;width:88%;box-sizing:border-box;padding:calc(var(--u)*3.4) calc(var(--u)*4) calc(var(--u)*3.8);display:grid;justify-items:center;gap:calc(var(--u)*2);transform:rotate(-1.5deg);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.9))}
+#over{align-items:center;text-align:center;justify-content:flex-start;gap:calc(var(--u)*3.4)}
+#over>:first-child{margin-top:auto}
+#over>:last-child{margin-bottom:auto}
+.over-h{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*9);line-height:1;color:#fff;-webkit-text-stroke:calc(var(--u)*1.4) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--u)*1.2) 0 var(--ink)}
+.script{position:relative;width:88%;box-sizing:border-box;padding:calc(var(--u)*2.8) calc(var(--u)*3.6) calc(var(--u)*3);display:grid;justify-items:center;gap:calc(var(--u)*1.6);transform:rotate(-1.5deg);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.6),rgba(70,130,220,.2) calc(var(--u)*5.9))}
 .script-meta{width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:calc(var(--u)*2);text-align:left;font-weight:900;font-size:calc(var(--u)*1.75);line-height:1.3;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);border-bottom:calc(var(--u)*.35) solid var(--ink);padding-bottom:calc(var(--u)*1.4)}
 .script-meta b{display:block;font-size:calc(var(--u)*2.1);color:var(--ink);letter-spacing:.02em}
-.grade{display:grid;place-items:center;width:calc(var(--u)*30);height:calc(var(--u)*30);border:calc(var(--u)*1.1) solid var(--tomato);border-radius:50%;font-family:var(--f-hand);font-size:calc(var(--u)*15);line-height:1;color:var(--tomato);transform:rotate(-10deg);animation:stamp .5s cubic-bezier(.3,1.6,.5,1) both}
-.o-comment{margin:0;font-family:var(--f-hand);font-size:calc(var(--u)*4.4);line-height:1.25;color:var(--tomato);max-width:24ch}
+.grade{display:grid;place-items:center;width:calc(var(--u)*25);height:calc(var(--u)*25);border:calc(var(--u)*1.1) solid var(--tomato);border-radius:50%;font-family:var(--f-hand);font-size:calc(var(--u)*13);line-height:1;color:var(--tomato);transform:rotate(-10deg);animation:stamp .5s cubic-bezier(.3,1.6,.5,1) both}
+.o-comment{margin:0;font-family:var(--f-hand);font-size:calc(var(--u)*4);line-height:1.25;color:var(--tomato);max-width:24ch}
 .report{width:100%;display:grid;gap:calc(var(--u)*1.1);justify-items:center;margin-top:calc(var(--u)*.4)}
 .report-k{font-weight:900;font-size:calc(var(--u)*1.8);letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
 .report-pips{display:flex;gap:calc(var(--u)*.9)}
@@ -164,11 +166,25 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
 .report-pips i.made::after{content:"✓"}
 .report-pips i.miss::after{content:"×"}
 
-.o-stats{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*2);width:88%}
-.o-stats div{padding:calc(var(--u)*1.6) calc(var(--u)*2);display:grid;gap:calc(var(--u)*.4)}
+.o-stats{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.6);width:88%}
+.o-stats div{padding:calc(var(--u)*1.2) calc(var(--u)*1.8);display:grid;gap:calc(var(--u)*.3)}
 .o-stats dt{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .o-stats dd{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*5.4);line-height:1;font-variant-numeric:tabular-nums}
 .newbest{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*4.4);color:var(--sun);-webkit-text-stroke:calc(var(--u)*1.1) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--u)*.9) 0 var(--ink);animation:bob .8s ease-in-out infinite}
+.board{width:88%;box-sizing:border-box;padding:calc(var(--u)*2) calc(var(--u)*2.6) calc(var(--u)*2.2);display:grid;gap:calc(var(--u)*.9);text-align:left}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;gap:calc(var(--u)*2);border-bottom:calc(var(--u)*.35) solid rgba(35,48,63,.28);padding-bottom:calc(var(--u)*.9)}
+.board-title{margin:0;font-family:var(--f-display);font-weight:400;font-size:calc(var(--u)*3.2);line-height:1;letter-spacing:.02em}
+.board-sub{font-weight:900;font-size:calc(var(--u)*1.65);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);white-space:nowrap}
+.board-list{margin:0;padding:0;list-style:none;display:grid;gap:calc(var(--u)*.35)}
+.board-list li{display:grid;grid-template-columns:calc(var(--u)*3.8) 1fr auto auto;align-items:center;gap:calc(var(--u)*1.4);padding:calc(var(--u)*.55) calc(var(--u)*.9);border-radius:calc(var(--u)*1)}
+.board-list li.now{background:rgba(255,210,63,.5);box-shadow:inset 0 0 0 calc(var(--u)*.3) var(--ink)}
+.br{display:grid;place-items:center;width:calc(var(--u)*3.4);height:calc(var(--u)*3.4);border-radius:50%;background:#e4e8ec;font-weight:900;font-size:calc(var(--u)*1.8);line-height:1;font-variant-numeric:tabular-nums}
+.board-list li:first-child:not(.empty) .br{background:var(--sun)}
+.bs{display:flex;align-items:center;gap:calc(var(--u)*1);font-family:var(--f-display);font-size:calc(var(--u)*3);line-height:1;font-variant-numeric:tabular-nums}
+.you{font-family:var(--f-body);font-weight:900;font-size:calc(var(--u)*1.5);letter-spacing:.06em;text-transform:uppercase;background:var(--tomato);color:#fff;border-radius:999px;padding:calc(var(--u)*.25) calc(var(--u)*1.1)}
+.bm,.bc{font-weight:900;font-size:calc(var(--u)*2);color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bc{justify-self:end}
+.board-note{margin:0;font-weight:800;font-size:calc(var(--u)*2.2);line-height:1.3;color:var(--mute)}
 .o-btns{display:flex;flex-wrap:wrap;gap:calc(var(--u)*2.6);justify-content:center}
 .o-foot{margin:0;font-weight:800;font-size:calc(var(--u)*3.3);line-height:1.3;max-width:28ch}
 
@@ -281,11 +297,19 @@ button:focus-visible{outline:calc(var(--u)*.7) solid var(--sky);outline-offset:c
         <div class="sticker"><dt>Your best</dt><dd id="oBest">0</dd></div>
       </dl>
       <p class="newbest" id="oNew" hidden>New personal best!</p>
+      <section class="board sticker" aria-labelledby="oBoardTitle">
+        <div class="board-head">
+          <h3 class="board-title" id="oBoardTitle">Top runs</h3>
+          <span class="board-sub">Top 5 · this degree</span>
+        </div>
+        <ol class="board-list" id="oBoard"></ol>
+        <p class="board-note" id="oBoardNote" hidden>No scored runs here yet. Bin one to start the board.</p>
+      </section>
       <div class="o-btns">
         <button class="btn" id="again">Retake</button>
         <button class="btn alt" id="newDeg">New degree</button>
       </div>
-      <p class="o-foot">Okay, back to studying. Drink some water first.</p>
+      <p class="o-foot">That's the paper done. Go again whenever you're ready.</p>
     </section>
 
     <div class="bottom" id="bottom" hidden>
@@ -314,7 +338,11 @@ const BANK = {
     "Use the pumping lemma to prove {aⁿbⁿ | n ≥ 0} is not regular.",
     "Explain tail-call optimisation, and why CPython refuses to do it.",
     "Derive the maximum height of an AVL tree with n nodes.",
-    "Why does Byzantine fault tolerance need 3f + 1 nodes to survive f traitors?"]},
+    "Why does Byzantine fault tolerance need 3f + 1 nodes to survive f traitors?",
+    "Explain why a cache-oblivious algorithm can beat a cache-aware one on unknown hardware.",
+    "Derive the expected depth of a random binary search tree and compare it with a red-black tree.",
+    "Explain the difference between linearizability and sequential consistency with a short example.",
+    "Show how to implement a lock-free queue with a single-producer, single-consumer ring buffer."]},
   eng:{school:'NUS',name:'Engineering (CDE)',q:[
     "Derive the Euler buckling load for a pinned-pinned column.",
     "Sketch the Bode plot of G(s) = 10 / s(s+1)(s+10) and find the phase margin.",
@@ -327,7 +355,11 @@ const BANK = {
     "Draw the shear force and bending moment diagrams for a cantilever under a UDL.",
     "Explain fatigue failure using an S–N curve. What is the endurance limit of steel?",
     "State the maximum power transfer theorem and prove it for a resistive load.",
-    "Why is the laminar–turbulent transition in pipes not a sharp Reynolds number?"]},
+    "Why is the laminar–turbulent transition in pipes not a sharp Reynolds number?",
+    "Derive the deflection curve of a simply supported beam under a central point load.",
+    "Explain why a second-order system overshoots, and express overshoot in terms of damping ratio.",
+    "Apply the continuity and Bernoulli equations to size a pipe constriction.",
+    "Explain the difference between endurance limit and yield strength in fatigue design."]},
   med:{school:'NUS',name:'Medicine',q:[
     "Explain the mechanism behind Cushing's triad in raised intracranial pressure.",
     "A patient has Kussmaul breathing and a high anion gap. List the causes (MUDPILES).",
@@ -340,7 +372,11 @@ const BANK = {
     "Describe Beck's triad and the condition it points to.",
     "Explain the Wolff–Chaikoff effect.",
     "How do you elicit Kernig's sign, and what does a positive result suggest?",
-    "Na⁺ 128, euvolaemic, concentrated urine. Explain the diagnosis of SIADH."]},
+    "Na⁺ 128, euvolaemic, concentrated urine. Explain the diagnosis of SIADH.",
+    "Explain the Frank–Starling mechanism and how it compensates for acute blood loss.",
+    "Compare the mechanisms of action of a beta-blocker and an ACE inhibitor in heart failure.",
+    "Describe the pathophysiology of diabetic ketoacidosis and its initial fluid management.",
+    "Interpret an arterial blood gas with pH 7.28, PaCO₂ 30 mmHg and HCO₃⁻ 14 mmol/L."]},
   law:{school:'NUS',name:'Law',q:[
     "Does the postal acceptance rule apply to email? Discuss Entores v Miles Far East.",
     "Apply Lord Atkin's neighbour principle from Donoghue v Stevenson.",
@@ -353,7 +389,11 @@ const BANK = {
     "Explain the rule against perpetuities.",
     "Apply the Caparo three-stage test for a duty of care.",
     "Can practical benefit be good consideration? Discuss Williams v Roffey Bros.",
-    "Explain oblique intention and the virtual certainty test in R v Woollin."]},
+    "Explain oblique intention and the virtual certainty test in R v Woollin.",
+    "Distinguish ratio decidendi from obiter dicta using a case you have studied.",
+    "Explain the doctrine of promissory estoppel and its limits in Singapore contract law.",
+    "Compare the tests for the tort of negligence in Singapore and England.",
+    "Discuss whether a company can be criminally liable for the knowledge of a rogue employee."]},
   biz:{school:'NUS',name:'Business Administration',q:[
     "Apply Porter's Five Forces to the bubble tea industry.",
     "Explain the BCG matrix. When should a firm keep a \"dog\"?",
@@ -366,7 +406,11 @@ const BANK = {
     "Explain the Ansoff matrix and the riskiest quadrant.",
     "Describe Tuckman's stages of group development. Which stage is your project group in?",
     "Why did Google use a Dutch auction for its IPO?",
-    "Explain the principal–agent problem and how stock options try to fix it."]},
+    "Explain the principal–agent problem and how stock options try to fix it.",
+    "Explain how switching costs create a moat, using a software platform as an example.",
+    "Explain the difference between a cost leader and a differentiator, with an example.",
+    "Calculate the break-even point given fixed costs of $120k and a $30 contribution margin.",
+    "Discuss why firms with strong cultures can still fail to innovate."]},
   econ:{school:'NUS',name:'Economics',q:[
     "Derive the Slutsky equation and use it to explain a Giffen good.",
     "Explain the Lucas critique.",
@@ -379,7 +423,11 @@ const BANK = {
     "Explain the Balassa–Samuelson effect.",
     "Explain adverse selection using Akerlof's market for lemons.",
     "Derive the Solow steady state and the golden-rule savings rate.",
-    "Explain the Laffer curve and the main criticisms of using it."]},
+    "Explain the Laffer curve and the main criticisms of using it.",
+    "Explain the difference between a Pigouvian tax and a cap-and-trade scheme for externalities.",
+    "Explain why a monopoly may produce where price exceeds marginal cost.",
+    "Use the IS–LM model to trace the effect of a contractionary open-market operation.",
+    "Distinguish adverse selection from moral hazard in insurance markets."]},
   psych:{school:'NUS',name:'Psychology',q:[
     "Explain the Stroop effect and what it says about automatic processing.",
     "Describe Milgram's obedience study and its ethical problems.",
@@ -392,7 +440,11 @@ const BANK = {
     "Explain the bystander effect and the criticisms of the Genovese case.",
     "Describe Piaget's conservation tasks and the preoperational stage.",
     "Use the ego depletion literature to explain the replication crisis.",
-    "Explain signal detection theory, including hits, false alarms and d′."]},
+    "Explain signal detection theory, including hits, false alarms and d′.",
+    "Explain the difference between classical conditioning and operant conditioning with an example.",
+    "Describe the role of the hippocampus in memory consolidation, citing patient H.M.",
+    "Explain the fundamental attribution error and one culture-level qualification.",
+    "Distinguish reliability from validity in psychometric testing."]},
   math:{school:'NUS',name:'Mathematics',q:[
     "Prove that √2 is irrational.",
     "State and prove the Cauchy–Schwarz inequality.",
@@ -405,7 +457,11 @@ const BANK = {
     "Show that the harmonic series diverges.",
     "State Gödel's first incompleteness theorem.",
     "Use the Sylow theorems to show every group of order 15 is cyclic.",
-    "Prove the one-dimensional Brouwer fixed point theorem."]},
+    "Prove the one-dimensional Brouwer fixed point theorem.",
+    "Use the residue theorem to evaluate the integral of 1/(1+x²) over the real line.",
+    "Compute the residue of f(z) = e^z / (z²(z−1)) at each of its poles.",
+    "Show that every finite group of prime order is cyclic.",
+    "Use the mean value theorem to bound |sin x − sin y|."]},
   phys:{school:'NUS',name:'Physics',q:[
     "Derive the energy levels of a particle in a 1D infinite square well.",
     "Explain the ultraviolet catastrophe and how Planck fixed it.",
@@ -418,7 +474,11 @@ const BANK = {
     "Explain why the sky is blue using Rayleigh scattering.",
     "Write down the Lagrangian for a double pendulum.",
     "Explain Bell's inequality and what its violation implies.",
-    "Describe the Stern–Gerlach experiment and what it showed about spin."]},
+    "Describe the Stern–Gerlach experiment and what it showed about spin.",
+    "Derive the period of a physical pendulum and state the small-angle approximation.",
+    "Derive the relativistic Doppler shift for a source moving along the line of sight.",
+    "Use Gauss's law to find the field inside a uniformly charged sphere.",
+    "Describe the photoelectric effect and why it needs a photon model."]},
   chem:{school:'NUS',name:'Chemistry',q:[
     "Explain why cyclohexane prefers the chair conformation over the boat.",
     "Explain the Jahn–Teller distortion in Cu²⁺ octahedral complexes.",
@@ -431,7 +491,11 @@ const BANK = {
     "Use Hückel's 4n + 2 rule to explain why benzene is aromatic.",
     "Explain the inert pair effect in thallium and lead.",
     "Explain the chelate effect in thermodynamic terms.",
-    "Why do SN2 reactions proceed with Walden inversion?"]},
+    "Why do SN2 reactions proceed with Walden inversion?",
+    "Use the Arrhenius equation to explain why reaction rates roughly double every 10 °C.",
+    "Draw the molecular orbital diagram of O₂ and explain its paramagnetism.",
+    "Use the Clausius–Clapeyron equation to explain how vapour pressure changes with temperature.",
+    "Predict the product of an SN1 versus SN2 reaction for a tertiary alkyl halide."]},
   bio:{school:'NUS',name:'Life Sciences',q:[
     "Explain Mitchell's chemiosmotic theory of ATP synthesis.",
     "Describe the lac operon when lactose is high and glucose is low.",
@@ -444,7 +508,11 @@ const BANK = {
     "Explain how the Na⁺/K⁺-ATPase maintains the resting potential.",
     "Give the evidence for the endosymbiotic theory.",
     "Explain genomic imprinting with one human example.",
-    "Describe C4 photosynthesis and Kranz anatomy."]},
+    "Describe C4 photosynthesis and Kranz anatomy.",
+    "Explain how the electron transport chain builds the proton gradient for ATP synthesis.",
+    "Compare mitosis and meiosis in terms of chromosome number and genetic variation.",
+    "Describe the role of CRISPR–Cas9 in bacterial adaptive immunity.",
+    "Explain how a single gene mutation can produce multiple phenotypic effects."]},
   arch:{school:'NUS',name:'Architecture',q:[
     "Explain Le Corbusier's Five Points of Architecture.",
     "\"Less is more\" versus \"less is a bore\". Discuss Mies and Venturi.",
@@ -457,7 +525,11 @@ const BANK = {
     "Explain Christopher Alexander's idea of a pattern language.",
     "Why did Charles Jencks say modernism died when Pruitt–Igoe was demolished?",
     "Discuss the conservation of the Golden Mile Complex.",
-    "Explain Rem Koolhaas' concept of Junkspace."]},
+    "Explain Rem Koolhaas' concept of Junkspace.",
+    "Explain how a cantilever works and where the maximum bending moment occurs.",
+    "Compare the thermal performance of a green roof with a conventional flat roof.",
+    "Discuss how cross-ventilation depends on building orientation and opening size.",
+    "Explain why a long-span roof needs to account for thermal expansion."]},
   fin:{school:'NUS',name:'Accountancy',q:[
     "Explain how IFRS 16 changed lease accounting.",
     "Derive the Black–Scholes PDE using a delta-hedged portfolio.",
@@ -470,7 +542,11 @@ const BANK = {
     "Explain the duration and convexity of a bond.",
     "Explain the going concern assumption and when auditors doubt it.",
     "Explain the weak, semi-strong and strong forms of market efficiency.",
-    "Walk through the IFRS 15 five-step revenue recognition model."]},
+    "Walk through the IFRS 15 five-step revenue recognition model.",
+    "Explain the difference between a deferred tax asset and a deferred tax liability.",
+    "Compute free cash flow from operating cash flow, capex and working-capital changes.",
+    "Discuss how revenue recognition under IFRS 15 differs from a cash-basis view.",
+    "Explain why depreciation is added back in the indirect cash-flow statement."]},
   hist:{school:'NUS',name:'History',q:[
     "Assess the Schlieffen Plan's role in the outbreak of the First World War.",
     "Was the fall of Singapore in 1942 a failure of the Singapore strategy?",
@@ -483,7 +559,11 @@ const BANK = {
     "Explain the impact of the Opium Wars on Qing China.",
     "Compare orthodox and revisionist histories of the Cold War.",
     "Explain how the Rosetta Stone was used to decipher hieroglyphs.",
-    "Why did the Byzantine Empire outlast Rome in the West by a thousand years?"]},
+    "Why did the Byzantine Empire outlast Rome in the West by a thousand years?",
+    "Explain how the Treaty of Westphalia changed the idea of sovereignty.",
+    "Discuss the role of the Malayan Emergency in Singapore's path to independence.",
+    "Compare the causes of the First and Second World Wars.",
+    "Explain how print culture contributed to the Reformation."]},
   phil:{school:'NUS',name:'Philosophy',q:[
     "Explain the Gettier problem.",
     "Discuss the trolley problem from a Kantian perspective.",
@@ -496,7 +576,11 @@ const BANK = {
     "Explain Rawls' veil of ignorance.",
     "Resolve Zeno's paradox of Achilles and the tortoise.",
     "Explain Camus' absurd. Must we imagine Sisyphus happy?",
-    "Explain Pascal's wager and the many-gods objection."]},
+    "Explain Pascal's wager and the many-gods objection.",
+    "State Kant's categorical imperative and apply it to a case of lying.",
+    "Explain the difference between utilitarianism and deontology.",
+    "Outline the problem of induction and Hume's response.",
+    "Discuss whether personal identity depends on memory or on bodily continuity."]},
   pol:{school:'NUS',name:'Political Science',q:[
     "Explain Duverger's law.",
     "Explain the security dilemma in international relations.",
@@ -509,7 +593,11 @@ const BANK = {
     "Explain gerrymandering through packing and cracking.",
     "Explain the Thucydides trap.",
     "Explain Gramsci's concept of cultural hegemony.",
-    "Explain Michels' iron law of oligarchy."]},
+    "Explain Michels' iron law of oligarchy.",
+    "Explain the difference between a presidential and a parliamentary system.",
+    "Discuss how proportional representation affects party fragmentation.",
+    "Explain the concept of a veto player in coalition bargaining.",
+    "Compare the sources of legitimacy in democratic and authoritarian regimes."]},
   lit:{school:'NUS',name:'English Literature',q:[
     "Discuss Stevens as an unreliable narrator in The Remains of the Day.",
     "Explain Barthes' \"The Death of the Author\".",
@@ -522,7 +610,11 @@ const BANK = {
     "Summarise Said's argument in Orientalism.",
     "Explain Keats' negative capability.",
     "Discuss Great Expectations as a Bildungsroman.",
-    "Explain Shklovsky's defamiliarisation (ostranenie)."]},
+    "Explain Shklovsky's defamiliarisation (ostranenie).",
+    "Explain how free indirect discourse works in a novel you have read.",
+    "Discuss the role of the unreliable narrator in modern fiction.",
+    "Analyse the use of metaphor in a Shakespeare sonnet.",
+    "Compare the treatment of colonial memory in two postcolonial texts."]},
   ds:{school:'NUS',name:'Data Science & Analytics',q:[
     "Explain the bias–variance tradeoff.",
     "Explain Simpson's paradox with a worked example.",
@@ -535,7 +627,11 @@ const BANK = {
     "State the central limit theorem and when it fails.",
     "Explain vanishing gradients and why ReLU helps.",
     "Compare L1 and L2 regularisation. Why does L1 give sparse weights?",
-    "Explain the Benjamini–Hochberg procedure for false discovery rate."]},
+    "Explain the Benjamini–Hochberg procedure for false discovery rate.",
+    "Explain the bias–variance trade-off and how it shows up in a learning curve.",
+    "Derive the normal equations for ordinary least squares.",
+    "Explain how a random forest reduces variance compared with a single decision tree.",
+    "Describe how cross-validation can leak information if preprocessing is done incorrectly."]},
   ncse:{school:'NITC',name:'Computer Science & Engg',q:[
     "Prove that {ww | w ∈ {a,b}*} is not context-free.",
     "Explain Belady's anomaly using FIFO page replacement.",
@@ -548,7 +644,11 @@ const BANK = {
     "Explain how two-phase locking guarantees conflict serialisability.",
     "Solve T(n) = 2T(n/2) + n log n. Why doesn't the basic Master theorem apply?",
     "Multiply −7 × 3 using Booth's algorithm.",
-    "Derive link utilisation for Go-Back-N with window size N."]},
+    "Derive link utilisation for Go-Back-N with window size N.",
+    "Explain the difference between a process and a thread, with scheduling implications.",
+    "Derive the time complexity of building a heap bottom-up.",
+    "Explain how virtual memory uses page tables and a TLB.",
+    "Describe how a race condition can occur in a multithreaded bank transfer."]},
   nece:{school:'NITC',name:'Electronics & Comm',q:[
     "Explain the Early effect in a BJT and its effect on output resistance.",
     "Derive the Nyquist criterion for zero intersymbol interference.",
@@ -561,7 +661,11 @@ const BANK = {
     "Compare decimation-in-time and decimation-in-frequency radix-2 FFT.",
     "Explain the threshold effect in FM demodulation.",
     "Explain the body effect in a MOSFET.",
-    "Explain how a PLL works. Define lock range and capture range."]},
+    "Explain how a PLL works. Define lock range and capture range.",
+    "Explain why FM has better noise immunity than AM.",
+    "Derive the Friis transmission equation for a free-space link.",
+    "Explain the function of a matched filter in a digital receiver.",
+    "Sketch the frequency response of a first-order low-pass filter and find its −3 dB point."]},
   neee:{school:'NITC',name:'Electrical & Electronics',q:[
     "Explain the Ferranti effect in long transmission lines.",
     "Derive the condition for maximum efficiency of a transformer.",
@@ -574,7 +678,11 @@ const BANK = {
     "Use symmetrical components to analyse a single line-to-ground fault.",
     "Explain how a Buchholz relay protects a transformer.",
     "Explain Ward–Leonard speed control of a DC motor.",
-    "Draw and interpret the circle diagram of an induction motor."]},
+    "Draw and interpret the circle diagram of an induction motor.",
+    "Explain the operating principle of a transformer and why it works only with AC.",
+    "Derive the torque–speed characteristic of a separately excited DC motor.",
+    "Explain how a three-phase induction motor produces a rotating magnetic field.",
+    "Describe the role of a buck converter in a switched-mode power supply."]},
   nmech:{school:'NITC',name:'Mechanical Engg',q:[
     "Explain the Rankine cycle with reheat and why it raises efficiency.",
     "Explain hunting in a centrifugal governor.",
@@ -587,7 +695,11 @@ const BANK = {
     "Explain the vapour compression refrigeration cycle and define COP.",
     "Explain boundary layer separation. Why do golf balls have dimples?",
     "Explain the gyroscopic effect on a ship turning to port.",
-    "Explain the eutectoid reaction on the Fe–C phase diagram."]},
+    "Explain the eutectoid reaction on the Fe–C phase diagram.",
+    "Derive the expression for the efficiency of an Otto cycle.",
+    "Explain the difference between laminar and turbulent flow using the Reynolds number.",
+    "Calculate the heat loss through a composite wall with two layers.",
+    "Explain why a centrifugal pump can suffer cavitation."]},
   nciv:{school:'NITC',name:'Civil Engg',q:[
     "Explain Terzaghi's one-dimensional consolidation theory.",
     "Explain Lacey's regime theory for alluvial canals.",
@@ -600,7 +712,11 @@ const BANK = {
     "Explain the Marshall method of bituminous mix design.",
     "Derive the first-order BOD equation.",
     "Use the Müller-Breslau principle to sketch an influence line.",
-    "State Darcy's law and when it stops being valid."]},
+    "State Darcy's law and when it stops being valid.",
+    "Derive the bearing capacity of a shallow footing using Terzaghi's equation.",
+    "Explain how the water–cement ratio affects concrete strength and workability.",
+    "Compute the maximum bending moment in a simply supported beam with a uniformly distributed load.",
+    "Discuss how soil consolidation causes long-term settlement."]},
   nchem:{school:'NITC',name:'Chemical Engg',q:[
     "Use McCabe–Thiele to find the number of ideal stages in a distillation column.",
     "Explain the Ergun equation for pressure drop in a packed bed.",
@@ -613,7 +729,11 @@ const BANK = {
     "Why does a shell-and-tube exchanger need an LMTD correction factor?",
     "Apply the Gibbs phase rule to a binary azeotrope.",
     "Derive the Kremser equation for absorption.",
-    "Justify the Haber–Bosch conditions using Le Chatelier's principle."]},
+    "Justify the Haber–Bosch conditions using Le Chatelier's principle.",
+    "Derive the design equation for a plug-flow reactor.",
+    "Explain the difference between film and penetration mass-transfer models.",
+    "Use Raoult's law to construct a T–xy diagram for an ideal binary mixture.",
+    "Explain why a distillation column needs a reflux ratio above the minimum."]},
   nprod:{school:'NITC',name:'Production Engg',q:[
     "Explain Taylor's tool life equation.",
     "Derive the shear angle relation from Merchant's circle.",
@@ -626,7 +746,11 @@ const BANK = {
     "State Little's law and apply it to a production line.",
     "Explain the principle of electrical discharge machining (EDM).",
     "Explain X̄ and R control charts.",
-    "List the six big losses in Total Productive Maintenance."]},
+    "List the six big losses in Total Productive Maintenance.",
+    "Explain how a kanban system controls work-in-progress.",
+    "Compute the economic order quantity for a given annual demand and holding cost.",
+    "Discuss the difference between push and pull production control.",
+    "Explain how a bottleneck limits the throughput of a production line."]},
   nbio:{school:'NITC',name:'Biotechnology',q:[
     "Explain Monod kinetics and how it differs from Michaelis–Menten.",
     "Linearise Michaelis–Menten kinetics using a Lineweaver–Burk plot.",
@@ -639,7 +763,11 @@ const BANK = {
     "Explain hybridoma technology for monoclonal antibodies.",
     "Explain affinity chromatography using a His-tag.",
     "Explain Sanger dideoxy sequencing.",
-    "Define the D-value and z-value in thermal sterilisation."]},
+    "Define the D-value and z-value in thermal sterilisation.",
+    "Explain how PCR amplification depends on primer design and annealing temperature.",
+    "Describe the steps of recombinant insulin production in E. coli.",
+    "Explain the difference between batch and fed-batch fermentation.",
+    "Discuss how monoclonal antibodies are produced using hybridoma technology."]},
   nphy:{school:'NITC',name:'Engineering Physics',q:[
     "Explain the Hall effect and how it identifies the majority carrier.",
     "Use the Kronig–Penney model to explain the origin of band gaps.",
@@ -652,7 +780,11 @@ const BANK = {
     "Explain how a scanning tunnelling microscope uses quantum tunnelling.",
     "Explain the normal and anomalous Zeeman effect.",
     "Explain the Michelson–Morley experiment and its null result.",
-    "Compare population inversion in three-level and four-level lasers."]},
+    "Compare population inversion in three-level and four-level lasers.",
+    "Explain the origin of the photonic band gap in a periodic dielectric structure.",
+    "Derive the de Broglie wavelength of an electron accelerated through 100 V.",
+    "Explain how a semiconductor laser differs from an LED.",
+    "Describe the Meissner effect and its implication for superconductivity."]},
   narch:{school:'NITC',name:'Architecture (B.Arch)',q:[
     "Discuss Laurie Baker's cost-effective brick architecture in Kerala.",
     "Explain the nalukettu and the role of the nadumuttam courtyard.",
@@ -665,14 +797,16 @@ const BANK = {
     "Discuss Louis Kahn's IIM Ahmedabad campus.",
     "Explain how jaalis control ventilation and daylight.",
     "Explain stepwells as climate-responsive architecture.",
-    "Discuss Geoffrey Bawa's tropical modernism."]}
+    "Discuss Geoffrey Bawa's tropical modernism.",
+    "Explain how the Modulor system influenced Le Corbusier's proportions.",
+    "Discuss how daylight factor is used in building design.",
+    "Compare the structural logic of a dome and a vault.",
+    "Explain why acoustic design matters in a lecture theatre."]}
 };
 const NUS_ORDER = ['cs','eng','med','law','biz','fin','econ','psych','math','phys','chem','bio','ds','arch','hist','phil','pol','lit'];
 const NITC_ORDER = ['ncse','nece','neee','nmech','nciv','nchem','nprod','nbio','nphy','narch'];
 const ORDER = NUS_ORDER.concat(NITC_ORDER);
 const MARKS = [5,6,8,10,12,15,20,25];
-const GOOD = ['One less topic to revise','S/U that question','Bell curve who?','Not in the syllabus anymore','Into the bin it goes','Should\'ve done this in week 1','Your tutor felt that'];
-const BAD = ['Now it\'s definitely coming out in the exam','Grace marks won\'t save that one','Supply exam energy','The wind is on the prof\'s side','It\'s fine, nobody saw','Same as my midterms'];
 
 /* ---------- World ---------- */
 const W=225,H=400,CX=W/2,HY=112,F=260,CAMY=1.3,CAMZ=-1;
@@ -696,23 +830,51 @@ function proj(x,y,z){const d=Math.max(0.08,z-CAMZ),s=F/d;return [CX+x*s,HY+(CAMY
 const Snd={ctx:null,on:true,
   init(){try{
     if(!this.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
-      const c=this.ctx=new C();this.m=c.createGain();this.m.gain.value=this.on?.55:0;this.m.connect(c.destination);
-      const n=c.sampleRate*2;this.nb=c.createBuffer(1,n,c.sampleRate);const d=this.nb.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
-      const s=c.createBufferSource();s.buffer=this.nb;s.loop=true;this.wf=c.createBiquadFilter();this.wf.type='bandpass';this.wf.frequency.value=400;this.wf.Q.value=.7;
-      this.wg=c.createGain();this.wg.gain.value=0;s.connect(this.wf);this.wf.connect(this.wg);this.wg.connect(this.m);s.start();}
+      const c=this.ctx=new C();
+      this.m=c.createGain();this.m.gain.value=this.on?.5:0;
+      const comp=c.createDynamicsCompressor();
+      comp.threshold.value=-20;comp.knee.value=26;comp.ratio.value=3.5;comp.attack.value=.004;comp.release.value=.22;
+      const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=6800;lp.Q.value=.2;
+      this.m.connect(lp);lp.connect(comp);comp.connect(c.destination);
+      const n=c.sampleRate*2;this.nb=c.createBuffer(1,n,c.sampleRate);const d=this.nb.getChannelData(0);
+      for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+      const s=c.createBufferSource();s.buffer=this.nb;s.loop=true;
+      this.wf=c.createBiquadFilter();this.wf.type='lowpass';this.wf.frequency.value=380;this.wf.Q.value=.4;
+      this.wg=c.createGain();this.wg.gain.value=0;
+      s.connect(this.wf);this.wf.connect(this.wg);this.wg.connect(this.m);s.start();
+    }
     if(this.ctx.state==='suspended')this.ctx.resume();
   }catch(e){this.ctx=null;}},
-  toggle(){this.on=!this.on;if(this.ctx)this.m.gain.setTargetAtTime(this.on?.55:0,this.ctx.currentTime,.02);},
-  noise(dur,f0,f1,g,q,when){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);const s=c.createBufferSource();s.buffer=this.nb;const f=c.createBiquadFilter();f.type='bandpass';f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);const gn=c.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(gn);gn.connect(this.m);s.start(t,Math.random()*1.5,dur+.05);},
-  tone(f0,dur,type,g,f1,when){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);const o=c.createOscillator();o.type=type||'triangle';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);const gn=c.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(gn);gn.connect(this.m);o.start(t);o.stop(t+dur+.02);},
-  wind(v){if(!this.ctx)return;const t=this.ctx.currentTime;this.wg.gain.setTargetAtTime(v*.2,t,.3);this.wf.frequency.setTargetAtTime(260+v*700,t,.3);},
-  crumple(k){for(let i=0;i<3+k*2;i++)this.noise(.04+Math.random()*.05,2200+Math.random()*3000,700,.4,.9,i*.028);},
-  whoosh(){this.noise(.38,300,1900,.28,.8);},
-  clang(){this.tone(1320,.22,'triangle',.08);this.tone(1990,.15,'sine',.06);this.tone(660,.3,'triangle',.05);},
-  thud(){this.tone(150,.12,'sine',.3,60);this.noise(.06,500,200,.15,1);},
-  score(m){[523,659,784,1047].forEach((f,i)=>this.tone(f*(1+Math.min(m-1,4)*.06),.14,'triangle',.12,0,i*.07));},
-  miss(){this.tone(330,.4,'triangle',.1,110);},
-  blip(){this.tone(880,.06,'triangle',.08);}
+  toggle(){this.on=!this.on;if(this.ctx)this.m.gain.setTargetAtTime(this.on?.5:0,this.ctx.currentTime,.02);},
+  noise(dur,f0,f1,g,q,when,type){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);
+    const s=c.createBufferSource();s.buffer=this.nb;
+    const f=c.createBiquadFilter();f.type=type||'bandpass';f.Q.value=q||1;
+    f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+dur);
+    const gn=c.createGain();
+    gn.gain.setValueAtTime(.0001,t);
+    gn.gain.exponentialRampToValueAtTime(g,t+Math.min(.012,dur*.2));
+    gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(f);f.connect(gn);gn.connect(this.m);s.start(t,Math.random()*1.5,dur+.05);},
+  tone(f0,dur,type,g,f1,when){if(!this.ctx)return;const c=this.ctx,t=c.currentTime+(when||0);
+    const o=c.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);
+    if(f1)o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t+dur);
+    const gn=c.createGain();
+    gn.gain.setValueAtTime(.0001,t);
+    gn.gain.exponentialRampToValueAtTime(g,t+.008);
+    gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(gn);gn.connect(this.m);o.start(t);o.stop(t+dur+.03);},
+  wind(v){if(!this.ctx)return;const t=this.ctx.currentTime;
+    this.wg.gain.setTargetAtTime(v*.12,t,.35);
+    this.wf.frequency.setTargetAtTime(280+v*420,t,.35);},
+  crumple(k){for(let i=0;i<2+k*2;i++)this.noise(.035+Math.random()*.045,1800+Math.random()*2400,900,.10+Math.random()*.05,1.1,i*.03);},
+  whoosh(){this.noise(.3,260,900,.10,.7,0,'lowpass');},
+  clang(){this.tone(720,.16,'sine',.05);this.tone(1160,.1,'sine',.03,0,.01);this.tone(1580,.07,'sine',.014,0,.02);this.noise(.03,3000,1800,.035,1.2);},
+  thud(){this.tone(130,.14,'sine',.18,55);this.noise(.06,420,180,.07,.9,0,'lowpass');},
+  score(m){const base=392*Math.pow(1.0595,Math.min(m-1,5));
+    [0,4,7,12].forEach((semi,i)=>this.tone(base*Math.pow(2,semi/12),.22,'sine',.09/(1+i*.3),0,i*.055));
+    this.tone(base*2,.3,'sine',.03,0,.02);},
+  miss(){this.thud();this.noise(.09,700,300,.06,.8,.02,'lowpass');},
+  blip(){this.tone(660,.05,'sine',.04);}
 };
 
 /* ---------- Vector helpers ---------- */
@@ -723,6 +885,13 @@ function quadX(c,x,z0,z1,y0,y1){poly(c,[proj(x,y0,z0),proj(x,y0,z1),proj(x,y1,z1
 function quadY(c,y,x0,x1,z0,z1){poly(c,[proj(x0,y,z0),proj(x1,y,z0),proj(x1,y,z1),proj(x0,y,z1)]);}
 function paint(c,fill,lw,stroke){if(fill){c.fillStyle=fill;c.fill();}if(lw){c.lineWidth=lw;c.strokeStyle=stroke||INK;c.lineJoin='round';c.lineCap='round';c.stroke();}}
 function seg(c,a,b,lw,col){c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineWidth=lw;c.strokeStyle=col;c.lineCap='round';c.stroke();}
+function wallShadow(x0,x1,y0,y1,z,dx,dy,a){
+  const c=bgx;
+  for(let i=3;i>=1;i--){
+    quadZ(c,x0+dx*i*.6,x1+dx*i*.6,y0+dy*i*.6,y1+dy*i*.6,z);
+    c.fillStyle=`rgba(35,48,63,${a*i/6})`;c.fill();
+  }
+}
 
 /* ---------- Static room ---------- */
 function renderRoom(){
@@ -756,6 +925,7 @@ function renderRoom(){
   quadY(c,0,-RW,RW,RD-1.5,RD);c.fillStyle=shade;c.fill();
   // rug
   const rug=(rx,rz)=>{c.beginPath();for(let k=0;k<=56;k++){const a=k/56*Math.PI*2,p=proj(Math.cos(a)*rx,0,4.5+Math.sin(a)*rz);k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.closePath();};
+  rug(1.42,1.15);paint(c,'rgba(35,48,63,.11)');
   rug(1.3,1.05);paint(c,'#ef8a6f',.8);rug(1.08,.85);paint(c,null,1.1,'rgba(255,255,255,.7)');rug(.6,.46);paint(c,'#f6b38a');
   // warm daylight falling in from the window
   const l0=proj(0,0,RD),l1=proj(0,0,RD-2.1),lg=c.createLinearGradient(0,l0[1],0,l1[1]);
@@ -764,6 +934,16 @@ function renderRoom(){
   // skirting and room edges
   quadZ(c,-RW,RW,0,.12,RD-.001);paint(c,'#ffffff',.5);
   quadX(c,-RW+.001,ZN,RD,0,.12);paint(c,'#ffffff');quadX(c,RW-.001,ZN,RD,0,.12);paint(c,'#ffffff');
+  // ambient occlusion at the wall/floor and wall/ceiling joins
+  const aoF0=proj(0,0,RD),aoF1=proj(0,.34,RD),aoF=c.createLinearGradient(0,aoF0[1],0,aoF1[1]);
+  aoF.addColorStop(0,'rgba(35,48,63,.15)');aoF.addColorStop(1,'rgba(35,48,63,0)');
+  quadZ(c,-RW,RW,0,.34,RD-.002);c.fillStyle=aoF;c.fill();
+  const aoC0=proj(0,RH,RD),aoC1=proj(0,RH-.26,RD),aoC=c.createLinearGradient(0,aoC0[1],0,aoC1[1]);
+  aoC.addColorStop(0,'rgba(35,48,63,.13)');aoC.addColorStop(1,'rgba(35,48,63,0)');
+  quadZ(c,-RW,RW,RH-.26,RH,RD-.002);c.fillStyle=aoC;c.fill();
+  const sa0=proj(0,0,RD),sa1=proj(0,.32,RD),sao=c.createLinearGradient(0,sa0[1],0,sa1[1]);
+  sao.addColorStop(0,'rgba(35,48,63,.1)');sao.addColorStop(1,'rgba(35,48,63,0)');
+  [[-RW+.002],[RW-.002]].forEach(([sx])=>{quadX(c,sx,ZN,RD,0,.3);c.fillStyle=sao;c.fill();});
   [[[-RW,0,RD],[RW,0,RD]],[[-RW,RH,RD],[RW,RH,RD]],[[-RW,0,RD],[-RW,RH,RD]],[[RW,0,RD],[RW,RH,RD]],[[-RW,0,RD],[-RW,0,ZN]],[[RW,0,RD],[RW,0,ZN]],[[-RW,RH,RD],[-RW,RH,ZN]],[[RW,RH,RD],[RW,RH,ZN]]]
     .forEach(([a,b])=>seg(c,proj(...a),proj(...b),.8,INK));
   // window with a daytime view
@@ -780,6 +960,7 @@ function renderRoom(){
   seg(c,proj(0,1.07,z),proj(0,2.15,z),1.6,'#ffffff');seg(c,proj(-.71,1.61,z),proj(.71,1.61,z),1.6,'#ffffff');
   quadZ(c,-.71,.71,1.07,2.15,z);paint(c,null,.6);
   // whiteboard
+  wallShadow(-2.0,-.98,1.0,1.86,z,-.055,-.055,.36);
   quadZ(c,-2.0,-.98,1.0,1.86,z);paint(c,'#c9ced6',.7);quadZ(c,-1.95,-1.03,1.05,1.81,z);paint(c,'#ffffff');
   quadZ(c,-1.85,-1.15,.96,1.0,z);paint(c,'#9aa4b1',.4);
   const wb=proj(-1.9,1.68,z);c.textBaseline='alphabetic';
@@ -787,13 +968,15 @@ function renderRoom(){
   c.fillStyle='#ef5b4c';c.fillText('EXAMS!!',wb[0],wb[1]+.22*ws,.8*ws);
   c.strokeStyle='#2f6fd6';c.lineWidth=.5;c.beginPath();for(let k=0;k<6;k++){const p=proj(-1.88+k*.12,1.2+(k%2)*.06,z);k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.stroke();
   // poster
+  wallShadow(.98,1.7,1.02,1.88,z,.055,-.055,.36);
   quadZ(c,.98,1.7,1.02,1.88,z);paint(c,'#ffd23f',.7);
   const pc=proj(1.34,1.5,z);c.textAlign='center';c.fillStyle=INK;
   c.font=`${.34*ws}px "Lilita One", sans-serif`;c.fillText('40%',pc[0],pc[1]);
   c.font=`900 ${.11*ws}px Nunito, sans-serif`;c.fillText('IS A PASS',pc[0],pc[1]+.17*ws);c.textAlign='left';
   [[1.0,1.86],[1.68,1.86]].forEach(([x,y])=>{quadZ(c,x-.06,x+.06,y-.03,y+.03,z);paint(c,'rgba(255,255,255,.8)');});
   // clock at 3:47
-  const ck=proj(0,2.47,z),cr=.15*ws;c.beginPath();c.arc(ck[0],ck[1],cr,0,Math.PI*2);paint(c,'#ffffff',.9);
+  const ck=proj(0,2.47,z),cr=.15*ws;c.beginPath();c.arc(ck[0]+.035*ws,ck[1]+.045*ws,cr*1.02,0,Math.PI*2);c.fillStyle='rgba(35,48,63,.16)';c.fill();
+  c.beginPath();c.arc(ck[0],ck[1],cr,0,Math.PI*2);paint(c,'#ffffff',.9);
   const hand=(a,l,lw,col)=>seg(c,ck,[ck[0]+Math.sin(a)*l,ck[1]-Math.cos(a)*l],lw,col);
   hand((3+47/60)/12*Math.PI*2,cr*.5,.9,INK);hand(47/60*Math.PI*2,cr*.78,.6,INK);hand(T*2,cr*.8,.3,'#ef5b4c');
   // corkboard and door on the back wall
@@ -828,12 +1011,17 @@ function binGeo(bx,bz){
   return {cx:pT[0],cxB:pB[0],s:pT[2],rxT:BIN_R*pT[2],rxB:Rb*pB[2],cyT:(tF+tK)/2,ryT:Math.max(.5,(tF-tK)/2),cyB:(bF+bK)/2,ryB:Math.max(.5,(bF-bK)/2)};
 }
 function binPath(g){const c=ctx;c.beginPath();c.moveTo(g.cx-g.rxT,g.cyT);c.lineTo(g.cxB-g.rxB,g.cyB);ell(c,g.cxB,g.cyB,g.rxB,g.ryB,Math.PI,0,true);c.lineTo(g.cx+g.rxT,g.cyT);ell(c,g.cx,g.cyT,g.rxT,g.ryT,0,Math.PI,true);c.closePath();}
-function drawBinBody(g){
+function drawBinBody(g,bx,bz){
   const c=ctx;
-  c.beginPath();ell(c,g.cxB+g.rxB*.3,g.cyB+g.ryB*.35,g.rxB*1.45,g.ryB*1.6);c.fillStyle='rgba(35,48,63,.2)';c.fill();
+  softShadow(bx*1.16,(bz||0)-.5,BIN_R*1.55,BIN_R*1.05,.1,3);
+  softShadow(bx+.04,(bz||0)-.06,BIN_R*1.28,BIN_R*.78,.19,4);
   const gr=c.createLinearGradient(g.cx-g.rxT,0,g.cx+g.rxT,0);gr.addColorStop(0,'#5a7593');gr.addColorStop(.28,'#c6d8e8');gr.addColorStop(.55,'#9db4ca');gr.addColorStop(1,'#4f6883');
   binPath(g);c.fillStyle=gr;c.fill();
-  c.save();binPath(g);c.clip();c.strokeStyle='rgba(35,48,63,.3)';c.lineWidth=Math.max(.35,g.s*.008);
+  c.save();binPath(g);c.clip();
+  const vg=c.createLinearGradient(0,g.cyT-g.ryT,0,g.cyB+g.ryB);
+  vg.addColorStop(0,'rgba(255,255,255,.16)');vg.addColorStop(.5,'rgba(255,255,255,0)');vg.addColorStop(1,'rgba(35,48,63,.2)');
+  c.fillStyle=vg;c.fillRect(g.cx-g.rxT,g.cyT-g.ryT,g.rxT*2,g.cyB-g.cyT+g.ryB*2);
+  c.strokeStyle='rgba(35,48,63,.3)';c.lineWidth=Math.max(.35,g.s*.008);
   for(let th=-1.35;th<=1.36;th+=.27){c.beginPath();c.moveTo(g.cx+g.rxT*Math.sin(th),g.cyT+g.ryT*Math.cos(th));c.lineTo(g.cxB+g.rxB*Math.sin(th),g.cyB+g.ryB*Math.cos(th));c.stroke();}
   [.34,.67].forEach(k=>{c.beginPath();ell(c,g.cx+(g.cxB-g.cx)*k,g.cyT+(g.cyB-g.cyT)*k,g.rxT+(g.rxB-g.rxT)*k,g.ryT+(g.ryB-g.ryT)*k,0,Math.PI);c.stroke();});
   c.restore();
@@ -847,14 +1035,22 @@ function drawBinPulse(g){
   c.globalAlpha=Math.min(1,bin.pulse*1.4);c.lineWidth=Math.max(1,g.s*.028);c.strokeStyle='#ffd23f';c.stroke();c.globalAlpha=1;
 }
 function drawBinOpening(g){
-  const c=ctx;c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);c.fillStyle='#34404e';c.fill();
+  const c=ctx;c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);c.fillStyle='#2b3542';c.fill();
   const n=Math.min(game.binCount,9);
-  if(n>0){c.save();clipOpening(g);for(let i=0;i<n;i++){const lx=g.cx+(hash(i,3)-.5)*g.rxT*1.4,ly=g.cyT+g.ryT*(1.15-.6*n/9)-hash(i,4)*g.ryT*.5;drawBall(lx,ly,BR*g.s*.95,i*1.7);}c.restore();}
+  c.save();clipOpening(g);
+  if(n>0){for(let i=0;i<n;i++){const lx=g.cx+(hash(i,3)-.5)*g.rxT*1.4,ly=g.cyT+g.ryT*(1.15-.6*n/9)-hash(i,4)*g.ryT*.5;drawBall(lx,ly,BR*g.s*.95,i*1.7);}}
+  // far inside falls into shadow, the near lip catches the window light
+  const ig=c.createLinearGradient(0,g.cyT-g.ryT,0,g.cyT+g.ryT);
+  ig.addColorStop(0,'rgba(0,0,0,.6)');ig.addColorStop(.42,'rgba(0,0,0,.12)');ig.addColorStop(1,'rgba(255,255,255,.12)');
+  c.fillStyle=ig;c.fillRect(g.cx-g.rxT,g.cyT-g.ryT,g.rxT*2,g.ryT*2);
+  c.restore();
   rim(g,false);
 }
 const fan={a:0,side:-1};
 function drawFan(){
   const c=ctx,side=fan.side,fx=side*1.16,b=proj(fx,0,FAN_Z),h=proj(fx,1.02,FAN_Z),s=h[2],R=.29*s;
+  softShadow(fx+side*.12,FAN_Z-.42,.3,.16,.09,3);
+  softShadow(fx+.03,FAN_Z-.05,.26,.12,.2,3);
   // pedestal
   c.beginPath();ell(c,b[0],b[1],.2*s,.055*s);paint(c,'#5d6b7a',.8);
   c.beginPath();ell(c,b[0],b[1]-.018*s,.11*s,.03*s);paint(c,'#7f8c9c',.5);
@@ -906,6 +1102,43 @@ let best={};
 try{best=JSON.parse(localStorage.getItem('ptr-best')||'{}')||{};}catch(e){best={};}
 function saveBest(){try{localStorage.setItem('ptr-best',JSON.stringify(best));}catch(e){}}
 function bestFor(deg){let m=0;for(const k in best)if(k.split('|')[0]===deg)m=Math.max(m,best[k]);return m;}
+
+/* Leaderboard: top 5 runs per degree+wind, kept beside ptr-best so nothing is lost */
+const RUNS_KEY='ptr-runs',RUN_LIMIT=5;
+let runs={};
+try{runs=JSON.parse(localStorage.getItem(RUNS_KEY)||'{}')||{};}catch(e){runs={};}
+if(!runs||typeof runs!=='object'||Array.isArray(runs))runs={};
+let lastRun=null;
+function saveRuns(){try{localStorage.setItem(RUNS_KEY,JSON.stringify(runs));}catch(e){}}
+function topRuns(list){
+  return (Array.isArray(list)?list:[]).filter(r=>r&&r.s>0)
+    .sort((a,b)=>(b.s-a.s)||((b.m||0)-(a.m||0))||((b.c||0)-(a.c||0))||((a.t||0)-(b.t||0)))
+    .slice(0,RUN_LIMIT);
+}
+// Carry every existing personal best onto its board once. ptr-best is left untouched,
+// and an equal (or better) run already on the board means there is nothing to add.
+(function seedRuns(){
+  let changed=false;
+  for(const k in best){
+    const s=Math.round(Number(best[k])||0);if(s<=0)continue;
+    const list=Array.isArray(runs[k])?runs[k]:[];
+    if(!list.some(r=>r&&Number(r.s)>=s)){list.push({s,m:null,c:null,t:0,seed:true});changed=true;}
+    runs[k]=topRuns(list);
+  }
+  if(changed)saveRuns();
+})();
+function recordRun(){
+  const key=game.deg+'|'+game.mode,list=Array.isArray(runs[key])?runs[key]:[];
+  const run={s:game.score,m:game.made,c:game.bestStreak,t:Date.now()};
+  list.push(run);runs[key]=topRuns(list);saveRuns();
+  lastRun=runs[key].includes(run)?run:null;
+  return lastRun;
+}
+function renderBoard(){
+  const key=game.deg+'|'+game.mode,list=Array.isArray(runs[key])?runs[key]:[];
+  $('#oBoard').innerHTML=list.map((r,i)=>`<li${r===lastRun?' class="now"':''}><span class="br">${i+1}</span><span class="bs">${r.s}${r===lastRun?'<span class="you">new</span>':''}</span><span class="bm">${r.m==null?'—':r.m+'/'+PAPERS}</span><span class="bc">${r.c==null?'—':'x'+r.c}</span></li>`).join('');
+  $('#oBoardNote').hidden=list.length>0;
+}
 
 function windAt(t){
   const w=wind.base;
@@ -1046,37 +1279,38 @@ function onScore(){
   game.score+=pts;ball.state='gone';
   bin.pulse=1;const bp=proj(binX(),BIN_H,bin.z);if(!REDUCE)burst(bp[0],bp[1]);
   const t1=ball.rim===0?'Swish!':ball.rim>1?'Rattled in!':'In off the rim!';
-  toast([t1,'+'+pts,mult>1?`x${mult} combo`:'',pick(GOOD)],'good');Snd.score(mult);
+  toast([t1,'+'+pts,mult>1?`x${mult} combo`:''],'good');Snd.score(mult);
   finishThrow();
 }
 function onMiss(){
   game.streak=0;game.results.push(false);
   if(ball.floorHits>0&&ball.z>0){floorBalls.push({x:ball.x,z:ball.z,rot:ball.rot});if(floorBalls.length>14)floorBalls.shift();}
   ball.state='gone';
-  toast([ball.rim?'Rimmed out!':ball.wall?'Off the bin!':'Airball!','','',pick(BAD)],'bad');Snd.miss();
+  toast([ball.rim?'Rimmed out!':ball.wall?'Off the bin!':'Airball!'],'bad');Snd.miss();
   finishThrow();
 }
 function finishThrow(){phase='result';updateHUD();const gen=game.gen;setTimeout(()=>{if(gen===game.gen)newPaper();},1500);}
 function gradeFor(m){
-  if(m>=12)return ['S','12 out of 12. Screenshot this and send it to your prof.'];
-  if(m>=10)return ['A+','Almost perfect. Are you sure you\'ve been studying?'];
-  if(m>=8)return ['A','Solid. Now do this well in the actual exam.'];
-  if(m>=6)return ['B','Not bad. The bell curve should be kind.'];
-  if(m>=4)return ['C','Passed. 40% is a pass, remember.'];
-  if(m>=2)return ['D','Rough one. Take a break and try again.'];
-  return ['F','The bin won this time. Go get some sleep.'];
+  if(m>=12)return ['S','Perfect run.'];
+  if(m>=10)return ['A+','Nearly perfect.'];
+  if(m>=8)return ['A','Strong run.'];
+  if(m>=6)return ['B','Solid run.'];
+  if(m>=4)return ['C','Through the paper.'];
+  if(m>=2)return ['D','Rough round.'];
+  return ['F','Rough round. Go again.'];
 }
 function endGame(){
   phase='over';hud.hidden=true;prompt.hidden=true;paperLayer.hidden=true;quitBtn.hidden=true;
   const [g,c]=gradeFor(game.made),key=game.deg+'|'+game.mode,prev=best[key]||0,isNew=game.score>prev&&game.score>0;
   if(isNew){best[key]=game.score;saveBest();}
+  if(game.score>0)recordRun();else lastRun=null;
   const gr=$('#oGrade');gr.textContent=g;gr.style.animation='none';void gr.offsetWidth;gr.style.animation='';
   $('#oComment').textContent=c;$('#oScore').textContent=game.score;
   $('#oDeg').textContent=degName(game.deg);
   $('#oMode').textContent=game.mode==='high'?'High wind':game.mode==='weird'?'Weird wind':'Breeze';
   $('#oPips').innerHTML=Array.from({length:PAPERS},(_,i)=>`<i class="${game.results[i]===true?'made':game.results[i]===false?'miss':''}"></i>`).join('');
   $('#oMade').textContent=`${game.made}/${PAPERS}`;$('#oCombo').textContent='x'+game.bestStreak;$('#oBest').textContent=Math.max(prev,game.score);
-  $('#oNew').hidden=!isNew;over.hidden=false;over.scrollTop=0;
+  $('#oNew').hidden=!isNew;renderBoard();over.hidden=false;over.scrollTop=0;
   Snd.score(5);
 }
 
@@ -1175,11 +1409,17 @@ function drawBits(){
   c.globalAlpha=1;
 }
 function drawBallWorld(b){const p=proj(b.x,b.y,b.z);drawBall(p[0],p[1],BR*p[2],b.rot);}
-function drawShadow(b){
-  if(b.y>2.6)return;const p=proj(b.x,0,b.z),f=proj(b.x,0,b.z-BR)[1],k=proj(b.x,0,b.z+BR)[1];
-  ctx.beginPath();ell(ctx,p[0],(f+k)/2,BR*1.1*p[2],Math.max(.6,(f-k)/2*1.1));ctx.fillStyle=`rgba(35,48,63,${clamp(.32-b.y*.09,.06,.32)})`;ctx.fill();
+function softShadow(x,z,rx,rz,a,layers){
+  const c=ctx,p=proj(x,0,z),f=proj(x,0,z-rz)[1],k=proj(x,0,z+rz)[1];
+  const cy=(f+k)/2,ry=Math.max(.3,(f-k)/2),n=layers||4;
+  for(let i=n-1;i>=0;i--){const g=1+i*.28;c.beginPath();ell(c,p[0],cy,rx*p[2]*g,ry*g);c.fillStyle=`rgba(35,48,63,${a/(i+1.6)})`;c.fill();}
 }
-function drawFloorBall(fb){const p=proj(fb.x,BR,fb.z);drawBall(p[0],p[1],BR*p[2],fb.rot);}
+function drawShadow(b){
+  if(b.y>2.6)return;
+  const shrink=clamp(1-b.y*.1,.5,1);
+  softShadow(b.x,b.z,BR*1.25*shrink,BR*.95*shrink,clamp(.26-b.y*.065,.055,.26),3);
+}
+function drawFloorBall(fb){const p=proj(fb.x,BR,fb.z);softShadow(fb.x,fb.z,BR*1.3,BR,0.2,3);drawBall(p[0],p[1],BR*p[2],fb.rot);}
 function drawAimHint(){
   const p=proj(0,.5,0),c=ctx,y=p[1]-30-Math.abs(Math.sin(T*4))*6;
   c.beginPath();c.moveTo(CX,y-9);c.lineTo(CX+7,y);c.lineTo(CX+3,y);c.lineTo(CX+3,y+8);c.lineTo(CX-3,y+8);c.lineTo(CX-3,y);c.lineTo(CX-7,y);c.closePath();
@@ -1214,11 +1454,12 @@ function drawPreview(){
     const r=clamp(.03*p[2],1.3,3.2);if(acc>=r*3.4){acc=0;if(Math.hypot(p[0]-p0[0],p[1]-p0[1])>p0[2]*BR+3)dots.push([p[0],p[1],r]);}}
   if(frac<1){const [ax,az]=aimPoint(dx,up),p=proj(ax,BIN_H,az),rr=BR*2.4,f=proj(ax,BIN_H,az-rr)[1],k=proj(ax,BIN_H,az+rr)[1];
     c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));c.setLineDash([2,1.6]);paint(c,'rgba(255,255,255,.25)',1.1,'#ffffff');c.setLineDash([]);}
-  if(frac>=1&&pr.result!=='in'){
+  if(frac>=1){
     const [ax,ay,az]=pr.at;
-    const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
-    c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
-    paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);
+    if(pr.result==='in'){const g=binGeo(ax,az);c.beginPath();ell(c,g.cx,g.cyT,g.rxT,g.ryT);paint(c,'rgba(90,209,107,.22)',Math.max(1.7,g.s*.042),'#2fa94f');}
+    else{const rr=pr.result==='rim'?BR*2:BR*2.4,p=proj(ax,ay,az),f=proj(ax,ay,az-rr)[1],k=proj(ax,ay,az+rr)[1];
+      c.beginPath();ell(c,p[0],(f+k)/2,rr*p[2],Math.max(1,(f-k)/2));
+      paint(c,pr.result==='rim'?'rgba(255,170,40,.7)':'rgba(239,91,76,.55)',1.1,INK);}
   }
   dots.forEach(([px,py,r],i)=>{c.globalAlpha=frac<1?clamp(1.15-i/dots.length,.25,1):1;c.beginPath();c.arc(px,py,r,0,Math.PI*2);paint(c,'#ffffff',Math.max(.6,r*.5));});
   c.globalAlpha=1;
@@ -1235,9 +1476,9 @@ function render(){
   const items=[];
   for(const fb of floorBalls)items.push({z:fb.z,draw:()=>drawFloorBall(fb)});
   items.push({z:FAN_Z,draw:drawFan});
-  items.push({z:bz,draw:()=>{drawBinBody(g);drawBinOpening(g);if(b.state==='in'){ctx.save();clipOpening(g);drawBallWorld(b);ctx.restore();rim(g,true);}if(bin.pulse>0)drawBinPulse(g);}});
+  items.push({z:bz,draw:()=>{drawBinBody(g,bx,bz);drawBinOpening(g);if(b.state==='in'){ctx.save();clipOpening(g);drawBallWorld(b);ctx.restore();rim(g,true);}if(bin.pulse>0)drawBinPulse(g);}});
   if(flying){const above=b.z>bz&&b.y>=BIN_H+.15;items.push({z:above?bz-.01:b.z,draw:()=>drawBallWorld(b)});drawShadow(b);}
-  else if(held)items.push({z:0,draw:()=>{const p=proj(0,.5+Math.sin(T*3)*.015,0);drawBall(p[0],p[1],BR*p[2],b.rot);}});
+  else if(held)items.push({z:0,draw:()=>{softShadow(.03,-.05,BR*1.4,BR*1.05,.18,3);const p=proj(0,.5+Math.sin(T*3)*.015,0);drawBall(p[0],p[1],BR*p[2],b.rot);}});
   items.sort((a,c)=>c.z-a.z).forEach(it=>it.draw());
   const vg=ctx.createRadialGradient(CX,H*.56,H*.2,CX,H*.56,H*.76);
   vg.addColorStop(0,'rgba(35,48,63,0)');vg.addColorStop(1,'rgba(35,48,63,.22)');
@@ -1256,7 +1497,7 @@ function fit(){
   cv.width=bg.width=Math.round(fw*dpr);cv.height=bg.height=Math.round(fh*dpr);K=cv.width/W;
   renderRoom();
 }
-window.__ptr={game,bin,wind,ball,binX,proj,predict,get phase(){return phase;}};
+window.__ptr={game,bin,wind,ball,binX,proj,predict,endGame,runs,get phase(){return phase;}};
 window.addEventListener('resize',fit);fit();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(renderRoom);
 buildDegGrid();
